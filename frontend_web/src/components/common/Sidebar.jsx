@@ -6,32 +6,44 @@ import { images } from "../../assets";
 import Animate from "./Animate";
 import { ChevronLeft, Menu } from "@mui/icons-material";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const menus = [
   {
     title: "NHẬP LIỆU",
     icon: <MailOutlinedIcon />,
-    state: "sidebar1"
+    state: "sidebar1",
+    path: "/dashboard/profile"
   },
   {
     title: "THỐNG KÊ SỐ LIỆU",
     icon: <DashboardCustomizeOutlinedIcon />,
-    state: "sidebar2"
+    state: "sidebar2",
+    path: "/dashboard/profile"
   },
   {
     title: "QUY TRÌNH THU GOM - TÁI CHẾ",
     icon: <NotificationsOutlinedIcon />,
-    state: "sidebar3"
+    state: "sidebar3",
+    path: "/dashboard/profile"
   },
   {
     title: "SÀN GIAO DỊCH PHẾ LIỆU",
     icon: <NotificationsOutlinedIcon />,
-    state: "sidebar4"
+    state: "sidebar4",
+    path: "/dashboard/profile"
   },
   {
     title: "HỖ TRỢ",
     icon: <NotificationsOutlinedIcon />,
-    state: "sidebar5"
+    state: "sidebar5",
+    path: "/dashboard/profile"
+  },
+  {
+    title: "THÔNG TIN CÁ NHÂN",
+    icon: <NotificationsOutlinedIcon />,
+    state: "sidebar6",
+    path: "/dashboard/profile"
   }
 ];
 
@@ -166,11 +178,13 @@ const Sidebar = ({ sidebarWidth }) => {
               
               <List>
                 {menus.map((item, index) => (
-                  <MenuItem
+                  <Link
+                    to={item.path}
                     key={index}
-                    item={item}
                     isActive={item.state === activeState}
-                  />
+                  >
+                    <MenuItem item={item} />
+                  </Link>
                 ))}
               </List>
           </Box>
