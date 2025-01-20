@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Box,
-  Container,
   TextField,
   Button,
   Typography,
@@ -12,8 +11,10 @@ import {
   MenuItem,
   IconButton,
   Paper,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material';
-import { PhotoCamera, Close } from '@mui/icons-material';
+import { PhotoCamera, Close, CalendarToday } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 const ProfilePage = () => {
@@ -37,9 +38,17 @@ const ProfilePage = () => {
     navigate(-1); // Go back to previous page
   };
 
+  const handleExpirationChange = (event) => {
+    setFormData({
+      ...formData,
+      isUnlimited: event.target.checked,
+      expirationDate: event.target.checked ? '' : formData.expirationDate
+    });
+  };
+
   return (
-    <Container maxWidth="md">
-      <Paper elevation={3} sx={{ p: 3, position: 'relative', mt: 4 }}>
+    <Box>
+      <Paper elevation={3} sx={{ p: 3, position: 'relative'}}>
         {/* Close button */}
         <IconButton 
           sx={{ position: 'absolute', right: 8, top: 8 }}
@@ -52,7 +61,7 @@ const ProfilePage = () => {
           {/* Left side - Form */}
           <Grid item xs={12} md={8}>
             <Typography variant="h6" gutterBottom>
-              Profile Information
+              THÔNG TIN KHÁCH HÀNG
             </Typography>
             
             <Box component="form" noValidate sx={{ mt: 2 }}>
@@ -148,9 +157,53 @@ const ProfilePage = () => {
                   <TextField
                     fullWidth
                     label="Liên hệ"
+                    value={formData.displayName}
+                    onChange={(e) => setFormData({...formData, displayName: e.target.value})}
+                  />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Liên hệ"
                     value={formData.phone}
                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
                   />
+                </Grid>
+                
+                <Grid item xs={12}>
+                  <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
+                    Thời hạn dùng phần mềm
+                  </Typography>
+                  <Grid container spacing={2} alignItems="center">
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        type="date"
+                        label="Có thời hạn"
+                        InputLabelProps={{ shrink: true }}
+                        value={formData.expirationDate}
+                        onChange={(e) => setFormData({...formData, expirationDate: e.target.value})}
+                        disabled={formData.isUnlimited}
+                        InputProps={{
+                          endAdornment: (
+                            <CalendarToday color="action" sx={{ ml: 1 }} />
+                          ),
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={formData.isUnlimited}
+                            onChange={handleExpirationChange}
+                          />
+                        }
+                        label="Vô thời hạn"
+                      />
+                    </Grid>
+                  </Grid>
                 </Grid>
               </Grid>
 
@@ -211,7 +264,7 @@ const ProfilePage = () => {
           </Grid>
         </Grid>
       </Paper>
-    </Container>
+    </Box>
   );
 };
 

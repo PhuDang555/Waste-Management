@@ -4,6 +4,9 @@ import LoginPage from "../pages/LoginPage";
 import MainLayout from "../components/layout/MainLayout";
 import DashboardPage from "../pages/DashboardPage";
 import ProfilePage from "../pages/ProfilePage";
+import DataInputPage from "../pages/DataInputPage";
+import CollectionManagementPage from "../pages/CollectionManagementPage";
+import StatisticsReport from "../pages/StatisticsReport";
 
 export const router = createBrowserRouter([
     {
@@ -26,6 +29,21 @@ export const router = createBrowserRouter([
                         path:"profile",
                         index: true,
                         element: <ProfilePage />
+                    },
+                    {
+                        path:"data-input",
+                        index: true,
+                        element: <DataInputPage />
+                    },
+                    {
+                        path:"collect-manage",
+                        index: true,
+                        element: <CollectionManagementPage />
+                    },
+                    {
+                        path:"report",
+                        index: true,
+                        element: <StatisticsReport />
                     }
                 ]
             },

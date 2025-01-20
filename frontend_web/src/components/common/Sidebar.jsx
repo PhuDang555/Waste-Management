@@ -1,9 +1,8 @@
 import DashboardCustomizeOutlinedIcon from "@mui/icons-material/DashboardCustomizeOutlined";
 import MailOutlinedIcon from "@mui/icons-material/MailOutlined";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
-import { Box, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Typography, colors } from "@mui/material";
+import { Box, Drawer, IconButton, List, ListItem, ListItemButton, ListItemText, Paper, Typography, colors } from "@mui/material";
 import { images } from "../../assets";
-import Animate from "./Animate";
 import { ChevronLeft, Menu } from "@mui/icons-material";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -13,13 +12,13 @@ const menus = [
     title: "NHẬP LIỆU",
     icon: <MailOutlinedIcon />,
     state: "sidebar1",
-    path: "/dashboard/profile"
+    path: "/dashboard/data-input"
   },
   {
     title: "THỐNG KÊ SỐ LIỆU",
     icon: <DashboardCustomizeOutlinedIcon />,
     state: "sidebar2",
-    path: "/dashboard/profile"
+    path: "/dashboard/report"
   },
   {
     title: "QUY TRÌNH THU GOM - TÁI CHẾ",
@@ -34,17 +33,25 @@ const menus = [
     path: "/dashboard/profile"
   },
   {
-    title: "HỖ TRỢ",
+    title: "QUẢN LÝ LỊCH THU GOM",
     icon: <NotificationsOutlinedIcon />,
     state: "sidebar5",
-    path: "/dashboard/profile"
+    path: "/dashboard/collect-manage"
   },
   {
     title: "THÔNG TIN CÁ NHÂN",
     icon: <NotificationsOutlinedIcon />,
     state: "sidebar6",
     path: "/dashboard/profile"
-  }
+  },
+  {
+    title: "HỖ TRỢ",
+    icon: <NotificationsOutlinedIcon />,
+    state: "sidebar7",
+    path: "/dashboard/profile"
+  },
+  
+  
 ];
 
 // const serviceMenus = [
