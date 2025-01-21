@@ -20,7 +20,6 @@ import TableViewIcon from '@mui/icons-material/TableView';
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const StatisticsReport = () => {
-  const [anchorEl, setAnchorEl] = useState(null);
   const [sourceAnchorEl, setSourceAnchorEl] = useState(null);
   const [typeAnchorEl, setTypeAnchorEl] = useState(null);
 

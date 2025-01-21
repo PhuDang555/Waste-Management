@@ -24,7 +24,7 @@ const menus = [
     title: "QUY TRÌNH THU GOM - TÁI CHẾ",
     icon: <NotificationsOutlinedIcon />,
     state: "sidebar3",
-    path: "/dashboard/profile"
+    path: "/dashboard/recycling"
   },
   {
     title: "SÀN GIAO DỊCH PHẾ LIỆU",
@@ -48,7 +48,7 @@ const menus = [
     title: "HỖ TRỢ",
     icon: <NotificationsOutlinedIcon />,
     state: "sidebar7",
-    path: "/dashboard/profile"
+    path: "/dashboard/support"
   },
   
   
@@ -141,7 +141,8 @@ const Sidebar = ({ sidebarWidth }) => {
             transition: "all 0.3s ease",
             position: "relative",
             display: "flex",
-            flexDirection: "column"
+            flexDirection: "column",
+            bgcolor: '#00bcd4',
           }}
         >
           <Box sx={{ 
@@ -169,7 +170,8 @@ const Sidebar = ({ sidebarWidth }) => {
             visibility: isOpen ? "visible" : "hidden",
             flex: 1,
             display: "flex",
-            flexDirection: "column"
+            flexDirection: "column",
+            color: "white",
           }}>
               <Box sx={{ textAlign: "center", mb: 2}}>
                 {/* <Animate type="fade" delay={1}> */}
@@ -222,6 +224,7 @@ const Sidebar = ({ sidebarWidth }) => {
         width: { md: isOpen ? sidebarWidth : collapsedWidth },
         flexShrink: { md: 0 },
         transition: "width 0.3s ease",
+        
       }}
     >
       {/* large screen */}
@@ -238,7 +241,8 @@ const Sidebar = ({ sidebarWidth }) => {
               overflowX: "hidden",
               "::-webkit-scrollbar": {
                 display: "none"
-              }
+              },
+              
             }
         }}
         open

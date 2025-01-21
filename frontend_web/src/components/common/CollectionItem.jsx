@@ -3,11 +3,12 @@ import {
     Typography,
     Paper,
     IconButton,
-    Link,
   } from '@mui/material';
   import { Edit, DeleteOutline } from '@mui/icons-material';
+import { Link } from 'react-router-dom';
 
 const CollectionItem  = ({ data }) => (
+   
     <Paper 
       elevation={1} 
       sx={{ 
@@ -80,22 +81,22 @@ const CollectionItem  = ({ data }) => (
         </IconButton>
       </Box>
   
-      {/* View Details Link */}
-      <Link
-        component="button"
-        sx={{
+      <Box sx={{
           position: 'absolute',
           bottom: 16,
           right: 16,
           color: '#00bcd4',
           textDecoration: 'none',
           '&:hover': {
-            textDecoration: 'underline'
-          }
-        }}
-      >
-        XEM CHI TIẾT
-      </Link>
+          textDecoration: 'underline'}
+      }}>
+        <Link
+          // component="button"
+          to={`/dashboard/collect-manage/${data.id}`}
+        >
+          XEM CHI TIẾT
+        </Link>
+      </Box>
     </Paper>
   );
 

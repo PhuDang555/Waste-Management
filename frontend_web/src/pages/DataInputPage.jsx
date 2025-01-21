@@ -35,7 +35,7 @@ const DataInputPage = () => {
 
   return (
     <Box>
-      <Paper elevation={3} sx={{ p: 3, minHeight: "96vh"}}>
+      <Paper elevation={3} sx={{ p: 3, minHeight: "96vh",}}>
         <Box component="form" onSubmit={handleSubmit}>
           {/* Title with note */}
           <Box sx={{ mb: 4 }}>

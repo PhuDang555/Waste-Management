@@ -7,6 +7,11 @@ import ProfilePage from "../pages/ProfilePage";
 import DataInputPage from "../pages/DataInputPage";
 import CollectionManagementPage from "../pages/CollectionManagementPage";
 import StatisticsReport from "../pages/StatisticsReport";
+import RecyclingProcessPage from "../pages/recyclingProcessPage";
+import CapabilityPage from "../pages/capabilityPage";
+import SupportPage from "../pages/SupportPage";
+import ReservationPage from "../pages/ReservationPage";
+import CollectionDetailPage from "../pages/CollectionDetailPage";
 
 export const router = createBrowserRouter([
     {
@@ -37,14 +42,47 @@ export const router = createBrowserRouter([
                     },
                     {
                         path:"collect-manage",
-                        index: true,
-                        element: <CollectionManagementPage />
+                        children: [
+                            {
+                                index: true,
+                                element: <CollectionManagementPage />
+                            },
+                            {
+                                path:":id",
+                                index: true,
+                                element: <CollectionDetailPage />
+                            },
+                            // {
+                            //     path:"edit/:id",
+                            //     element: <CollectionEditPage />
+                            // }
+                        ]
                     },
                     {
                         path:"report",
                         index: true,
                         element: <StatisticsReport />
-                    }
+                    },
+                    {
+                        path:"recycling",
+                        index: true,
+                        element: <RecyclingProcessPage />,
+                    },
+                    {
+                        path:"capability",
+                        index: true,
+                        element: <CapabilityPage />
+                    },
+                    {
+                        path:"support",
+                        index: true,
+                        element: <SupportPage />
+                    },
+                    {
+                        path:"reservation",
+                        index: true,
+                        element: <ReservationPage />
+                    },
                 ]
             },
         ]

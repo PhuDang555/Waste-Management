@@ -17,6 +17,41 @@ const CollectionManagementPage = () => {
       wasteType: "Rác thải nhựa",
       quantity: 300
     },
+    {
+      id: 2,
+      createdAt: "30.10.2024, 11:00",
+      collectionDate: "31.10.2025",
+      wasteType: "Rác thải rắn",
+      quantity: 300
+    },
+    {
+      id: 3,
+      createdAt: "30.10.2024, 12:00",
+      collectionDate: "21.10.2021",
+      wasteType: "Rác thải",
+      quantity: 300
+    },
+    {
+      id: 4,
+      createdAt: "30.10.2024, 17:00",
+      collectionDate: "31.10.2024",
+      wasteType: "Rác thải dd",
+      quantity: 300
+    },
+    {
+      id: 5,
+      createdAt: "30.10.2024, 17:00",
+      collectionDate: "31.10.2024",
+      wasteType: "Rác thải cc",
+      quantity: 300
+    },
+    {
+      id: 6,
+      createdAt: "30.10.2024, 17:00",
+      collectionDate: "31.10.2024",
+      wasteType: "Rác thải gg",
+      quantity: 300
+    },
   ];
 
   return (
@@ -32,9 +67,9 @@ const CollectionManagementPage = () => {
 
       {/* Grid of Collection Items */}
       <Grid container spacing={3}>
-        {[...Array(6)].map((_, index) => ( // Showing 6 items for demonstration
+        {sampleData.map((item, index) => ( // Showing 6 items for demonstration
           <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-            <CollectionItem data={sampleData[0]} />
+            <CollectionItem data={item} />
           </Grid>
         ))}
       </Grid>
