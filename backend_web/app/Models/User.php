@@ -6,7 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
+use App\Models\Permission;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -17,10 +17,25 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+
+    protected $table = 'users';
+
     protected $fillable = [
-        'name',
+        'username',
         'email',
         'password',
+        'full_name',
+        'alternate_email',
+        'address',
+        'province_id',
+        'district_id',
+        'ward_id',
+        'avatar',
+        'phone_number',
+        'license_expiration',
+        'permission_id',
+        'management_unit_id',
+        'is_blocked',
     ];
 
     /**
@@ -44,5 +59,9 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function permission(){
+        return $this->belongsTo(Permission::class,'permission_id');
     }
 }
