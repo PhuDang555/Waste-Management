@@ -1,17 +1,33 @@
-import { Box, Button, Checkbox, CircularProgress, FormControlLabel, FormGroup, Stack, TextField, Typography, circularProgressClasses, colors } from "@mui/material";
+import { Alert, Box, Button, Checkbox, CircularProgress, FormControlLabel, FormGroup, LinearProgress, Stack, TextField, Typography, circularProgressClasses, colors } from "@mui/material";
 import { useState } from "react";
 import { images } from "../assets";
 import { Link, useNavigate } from "react-router-dom";
 import Animate from "../components/common/Animate";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../store/features/authSlice";
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { error } = useSelector((state) => state.auth);
 
   const [onRequest, setOnRequest] = useState(false);
   const [loginProgress, setLoginProgress] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [formData, setFormData] = useState({
+    username:'',
+    password:''
+  });
 
-  const onSignin = (e) => {
+  const handleChange = (e) => {
+    const {name, value} = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setOnRequest(true);
 
@@ -19,17 +35,26 @@ const LoginPage = () => {
       setLoginProgress(prev => prev + 100 / 40);
     }, 50);
 
-    setTimeout(() => {
+    const result = await dispatch(loginUser(formData));
+    
+    if(result.payload?.token){
+      setTimeout(() => {
+        clearInterval(interval);
+      }, 2000);
+  
+      setTimeout(() => {
+        setIsLoggedIn(true);
+      }, 2100);
+  
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 3300);
+    }else{
       clearInterval(interval);
-    }, 2000);
-
-    setTimeout(() => {
-      setIsLoggedIn(true);
-    }, 2100);
-
-    setTimeout(() => {
-      navigate("/dashboard");
-    }, 3300);
+      setOnRequest(false);
+      setLoginProgress(0);
+    }
+    
   };
 
   return (
@@ -90,12 +115,48 @@ const LoginPage = () => {
             "::-webkit-scrollbar": { display: "none" }
           }}>
             <Animate type="fade" sx={{ maxWidth: 400, width: "100%" }}>
-              <Box component="form" maxWidth={400} width="100%" onSubmit={onSignin}>
+              <Box component="form" maxWidth={400} width="100%" onSubmit={handleSubmit}>
                 <Stack spacing={3}>
-                  <TextField label="username" fullWidth />
-                  <TextField label="password" type="password" fullWidth />
-                  <Button type="submit" size="large" variant="contained" color="success">
-                    sign in
+                  {error && (
+                    <Alert severity="error">
+                      {error.message || 'Đăng nhập không thành công. Vui lòng kiểm tra lại thông tin.'}
+                    </Alert>
+                  )}
+                  
+                  {onRequest && (
+                    <LinearProgress 
+                      variant="determinate" 
+                      value={loginProgress} 
+                      sx={{ mb: 2 }}
+                    />
+                  )}
+                  <TextField 
+                    label="Username" 
+                    fullWidth 
+                    name="username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    error={Boolean(error)}
+                    disabled={onRequest}
+                  />
+                  <TextField 
+                    label="Password" 
+                    type="password" 
+                    name="password"
+                    fullWidth 
+                    value={formData.password}
+                    onChange={handleChange}
+                    error={Boolean(error)}
+                    disabled={onRequest}
+                  />
+                  <Button 
+                    type="submit" 
+                    size="large" 
+                    variant="contained" 
+                    color="success"
+                    disabled={onRequest}
+                  >
+                    {onRequest ? 'Đang xử lý...' : 'Sign in'}
                   </Button>
                   <Stack direction="row" justifyContent="space-between" alignItems="center">
                     <FormGroup>
@@ -153,8 +214,8 @@ const LoginPage = () => {
                   value={100}
                 />
                 <CircularProgress
-                  variant="determinate"
-                  disableShrink
+                  variant={onRequest ? "indeterminate" : "determinate"}
+                  disableShrink={onRequest}
                   value={loginProgress}
                   size={100}
                   sx={{
