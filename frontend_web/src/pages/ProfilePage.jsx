@@ -72,6 +72,7 @@ const ProfilePage = () => {
                     label="Tên hiển thị"
                     value={formData.displayName}
                     onChange={(e) => setFormData({...formData, displayName: e.target.value})}
+                    size="small"
                   />
                 </Grid>
 
@@ -81,6 +82,7 @@ const ProfilePage = () => {
                     label="Số nhà"
                     value={formData.address}
                     onChange={(e) => setFormData({...formData, address: e.target.value})}
+                    size="small"
                   />
                 </Grid>
 
@@ -90,6 +92,7 @@ const ProfilePage = () => {
                       value={formData.province}
                       onChange={(e) => setFormData({...formData, province: e.target.value})}
                       displayEmpty
+                      size="small"
                     >
                       <MenuItem value="">Tỉnh/TP</MenuItem>
                     </Select>
@@ -102,6 +105,7 @@ const ProfilePage = () => {
                       value={formData.district}
                       onChange={(e) => setFormData({...formData, district: e.target.value})}
                       displayEmpty
+                      size="small"
                     >
                       <MenuItem value="">Quận/Huyện</MenuItem>
                     </Select>
@@ -114,6 +118,7 @@ const ProfilePage = () => {
                       value={formData.ward}
                       onChange={(e) => setFormData({...formData, ward: e.target.value})}
                       displayEmpty
+                      size="small"
                     >
                       <MenuItem value="">Phường/Xã</MenuItem>
                     </Select>
@@ -126,6 +131,7 @@ const ProfilePage = () => {
                       value={formData.userGroup}
                       onChange={(e) => setFormData({...formData, userGroup: e.target.value})}
                       displayEmpty
+                      size="small"
                     >
                       <MenuItem value="">Nhóm quyền</MenuItem>
                       <MenuItem value="admin">Quản lý</MenuItem>
@@ -139,6 +145,7 @@ const ProfilePage = () => {
                       value={formData.managementUnit}
                       onChange={(e) => setFormData({...formData, managementUnit: e.target.value})}
                       displayEmpty
+                      size="small"
                     >
                       <MenuItem value="">Đơn vị quản lý</MenuItem>
                     </Select>
@@ -159,6 +166,7 @@ const ProfilePage = () => {
                     label="Liên hệ"
                     value={formData.displayName}
                     onChange={(e) => setFormData({...formData, displayName: e.target.value})}
+                    size="small"
                   />
                 </Grid>
 
@@ -168,6 +176,7 @@ const ProfilePage = () => {
                     label="Liên hệ"
                     value={formData.phone}
                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    size="small"
                   />
                 </Grid>
                 
@@ -185,6 +194,7 @@ const ProfilePage = () => {
                         value={formData.expirationDate}
                         onChange={(e) => setFormData({...formData, expirationDate: e.target.value})}
                         disabled={formData.isUnlimited}
+                        size="small"
                         InputProps={{
                           endAdornment: (
                             <CalendarToday color="action" sx={{ ml: 1 }} />
@@ -219,6 +229,7 @@ const ProfilePage = () => {
                       label="Số điện thoại/Email"
                       value={formData.phone}
                       disabled
+                      size="small"
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -226,6 +237,7 @@ const ProfilePage = () => {
                       fullWidth
                       type="password"
                       label="Mật khẩu"
+                      size="small"
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -233,6 +245,7 @@ const ProfilePage = () => {
                       fullWidth
                       type="password"
                       label="Xác nhận mật khẩu"
+                      size="small"
                     />
                   </Grid>
                 </Grid>

@@ -1,15 +1,15 @@
 import { Alert, Box, Button, Checkbox, CircularProgress, FormControlLabel, FormGroup, LinearProgress, Stack, TextField, Typography, circularProgressClasses, colors } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { images } from "../assets";
 import { Link, useNavigate } from "react-router-dom";
 import Animate from "../components/common/Animate";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../store/features/authSlice";
+import { fetchUser, loginUser } from "../store/features/authSlice";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { error } = useSelector((state) => state.auth);
+  const { error, token } = useSelector((state) => state.auth);
 
   const [onRequest, setOnRequest] = useState(false);
   const [loginProgress, setLoginProgress] = useState(0);
@@ -18,6 +18,18 @@ const LoginPage = () => {
     username:'',
     password:''
   });
+
+  useEffect(() => {
+    if (token) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [token, navigate]);
+
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchUser());
+    }
+  }, [token, dispatch]);
 
   const handleChange = (e) => {
     const {name, value} = e.target;

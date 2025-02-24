@@ -4,8 +4,10 @@ import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined
 import { Box, Drawer, IconButton, List, ListItem, ListItemButton, ListItemText, Paper, Typography, colors } from "@mui/material";
 import { images } from "../../assets";
 import { ChevronLeft, Menu } from "@mui/icons-material";
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUser, logout } from "../../store/features/authSlice";
 
 const menus = [
   {
@@ -49,39 +51,32 @@ const menus = [
     icon: <NotificationsOutlinedIcon />,
     state: "sidebar7",
     path: "/dashboard/support"
-  },
-  
+  }
   
 ];
-
-// const serviceMenus = [
-//   {
-//     title: "Mortage",
-//     icon: <OtherHousesOutlinedIcon />,
-//     state: "mortage"
-//   },
-//   {
-//     title: "Car loans",
-//     icon: <DirectionsCarFilledOutlinedIcon />,
-//     state: "carloan"
-//   },
-//   {
-//     title: "Insurance",
-//     icon: <SportsMotorsportsOutlinedIcon />,
-//     state: "insurance"
-//   }
-// ];
-
-
 
 const Sidebar = ({ sidebarWidth }) => {
   const [isOpen, setIsOpen] = useState(true);
   const activeState = "overview";
   const collapsedWidth = 65;
 
-  // const container = window !== undefined ? () => window.document.body : undefined;
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user, token } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchUser());
+    }
+  }, [token, dispatch]);
+
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/");
   };
 
   const MenuItem = (props) => {
@@ -96,12 +91,6 @@ const Sidebar = ({ sidebarWidth }) => {
             color: props.isActive ? colors.common.white : "",
           }
         }}>
-          {/* <ListItemIcon sx={{
-            minWidth: "40px",
-            color: props.isActive ? colors.common.white : ""
-          }}>
-            {props.item.icon}
-          </ListItemIcon> */}
           <ListItemText sx={{ textAlign: "center"}} primary={
             <Typography fontWeight={600}>
               {props.item.title}
@@ -114,9 +103,12 @@ const Sidebar = ({ sidebarWidth }) => {
 
   const drawer = (
     <Box
-      padding={isOpen ? 3 : 1}
+      // padding={isOpen ? 3 : 1}
+      // paddingBottom={0}
+      // paddingTop={isOpen ? 3 : 3}
+      padding={0}
       paddingBottom={0}
-      paddingTop={isOpen ? 3 : 3}
+      paddingTop={0}
       display="flex"
       flexDirection="column"
       minHeight="100vh"
@@ -126,15 +118,15 @@ const Sidebar = ({ sidebarWidth }) => {
         },
         transition: "all 0.3s ease",
       }}
-    >
-      {/* <Animate sx={{ flexGrow: 1 }}> */}
+    >     
         <Paper
           elevation={0}
           square
           sx={{
-            borderTopRightRadius: "10px",
-            borderTopLeftRadius: "10px",
-            p: isOpen ? 2 : 1,
+            // borderTopRightRadius: "10px",
+            // borderTopLeftRadius: "10px",
+            // p: isOpen ? 2 : 1,
+            p: 0,
             height: "100%",
             overflow: "hidden",
             boxShadow: "rgba(145, 158, 171, 0.2) 0px 0px 2px 0px, rgba(145, 158, 171, 0.12) 0px 12px 24px -4px",
@@ -143,6 +135,7 @@ const Sidebar = ({ sidebarWidth }) => {
             display: "flex",
             flexDirection: "column",
             bgcolor: '#00bcd4',
+            // bgcolor: !isOpen ? "white" : "00bcd4",
           }}
         >
           <Box sx={{ 
@@ -151,7 +144,7 @@ const Sidebar = ({ sidebarWidth }) => {
             alignItems: "center",
             mb: isOpen ? 2 : 0,
             transition: "all 0.3s ease",
-            
+            // bgcolor: !isOpen ? "white" : "00bcd4",
           }}>
               <IconButton 
                 onClick={toggleSidebar} 
@@ -173,16 +166,16 @@ const Sidebar = ({ sidebarWidth }) => {
             flexDirection: "column",
             color: "white",
           }}>
-              <Box sx={{ textAlign: "center", mb: 2}}>
-                {/* <Animate type="fade" delay={1}> */}
-                  <img src={images.logo} alt="logo" height={60} />
-                {/* </Animate> */}
+              <Box sx={{ textAlign: "center", mb: 2}}>            
+                <img src={images.logo} alt="logo" height={60} />
               </Box>
               
               <Box sx={{ textAlign: "center", mb: 6 }}>
-                <Typography variant="h6" color="green" fontWeight="bold">
-                  Siêu thị ABC
-                </Typography>
+                {user && (
+                  <Typography variant="h6" color="green" fontWeight="bold">
+                    {user.username}
+                  </Typography>
+                )}
               </Box>
               
               <List>
@@ -195,25 +188,24 @@ const Sidebar = ({ sidebarWidth }) => {
                     <MenuItem item={item} />
                   </Link>
                 ))}
+                <ListItem disableGutters disablePadding sx={{ py: 0.5 }}>
+                  <ListItemButton onClick={handleLogout} sx={{
+                    borderRadius: "10px",
+                    "&:hover": {
+                      bgcolor: colors.green[600],
+                      color: colors.common.white,
+                    }
+                  }}>
+                    <ListItemText sx={{ textAlign: "center"}} primary={
+                      <Typography fontWeight={600}>
+                        ĐĂNG XUẤT
+                      </Typography>
+                    } />
+                  </ListItemButton>
+                </ListItem>
               </List>
           </Box>
-        
-          {/* <List>
-            <ListItem>
-              <Typography fontWeight={600} mt={1} color={colors.grey[600]}>
-                Services
-              </Typography>
-            </ListItem>
-            {serviceMenus.map((item, index) => (
-              <MenuItem
-                key={index}
-                item={item}
-                isActive={item.state === activeState}
-              />
-            ))}
-          </List> */}
         </Paper>
-      {/* </Animate> */}
     </Box>
   );
 
@@ -227,7 +219,6 @@ const Sidebar = ({ sidebarWidth }) => {
         
       }}
     >
-      {/* large screen */}
       <Drawer
         variant="permanent"
         sx={{
@@ -249,7 +240,6 @@ const Sidebar = ({ sidebarWidth }) => {
       >
         {drawer}
       </Drawer>
-      {/* large screen */}
     </Box>
   );
 };

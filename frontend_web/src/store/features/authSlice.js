@@ -9,9 +9,9 @@ export const loginUser = createAsyncThunk(
                 username,
                 password
             })
-          
-            localStorage.setItem('token', response.data?.data.token);
-
+            const token = response.data?.data.token;
+            localStorage.setItem('token', token);
+            // console.log('Token received:', token);
             return response.data.data;
         } catch (error) {
             return rejectWithValue(error.response.data);
@@ -19,6 +19,42 @@ export const loginUser = createAsyncThunk(
     }
 )
 
+export const fetchUser = createAsyncThunk(
+  'auth/fetchUser',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      // console.log('Token from localStorage:', token);
+      const response = await axios.get('http://127.0.0.1:8000/api/auth/me', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      // console.log('Response from API:', response.data);
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const editUser = createAsyncThunk(
+  'auth/editUser',
+  async (userData, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.put('http://127.0.0.1:8000/api/auth/me', userData, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+  
 const authSlice = createSlice({
     name: 'auth',
     initialState: {
@@ -50,6 +86,30 @@ const authSlice = createSlice({
           state.loading = false
           state.error = action.payload
         })
+        .addCase(fetchUser.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+        })
+        .addCase(fetchUser.fulfilled, (state, action) => {
+          state.loading = false;
+          state.user = action.payload;
+        })
+        .addCase(fetchUser.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.payload;
+        })
+        .addCase(editUser.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+        })
+        .addCase(editUser.fulfilled, (state, action) => {
+          state.loading = false;
+          state.user = action.payload;
+        })
+        .addCase(editUser.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.payload;
+        });
     },
 })
   
