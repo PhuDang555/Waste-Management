@@ -5,7 +5,7 @@ export const loginUser = createAsyncThunk(
     'auth/login',
     async ({username, password}, {rejectWithValue}) => {
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/auth/login', {
+            const response = await axios.post('http://127.0.0.1:8000/api/v1/auth/login', {
                 username,
                 password
             })
@@ -24,13 +24,13 @@ export const fetchUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      // console.log('Token from localStorage:', token);
-      const response = await axios.get('http://127.0.0.1:8000/api/auth/me', {
+      console.log(token);
+      const response = await axios.get('http://127.0.0.1:8000/api/v1/auth/me', {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-      // console.log('Response from API:', response.data);
+      console.log('Response from API:', response.data);
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -43,7 +43,7 @@ export const editUser = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.put('http://127.0.0.1:8000/api/auth/me', userData, {
+      const response = await axios.put('http://127.0.0.1:8000/api/v1/auth/me', userData, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -96,6 +96,7 @@ const authSlice = createSlice({
         })
         .addCase(fetchUser.rejected, (state, action) => {
           state.loading = false;
+          // console.error("Fetch user failed:", action.payload);
           state.error = action.payload;
         })
         .addCase(editUser.pending, (state) => {

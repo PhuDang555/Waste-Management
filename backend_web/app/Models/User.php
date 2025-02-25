@@ -75,4 +75,9 @@ class User extends Authenticatable implements JWTSubject
     public function permission(){
         return $this->belongsTo(Permission::class,'permission_id');
     }
+
+    public function wasteCollectionMannagement()
+    {
+        return $this->hasMany(WasteCollectionMannagement::class, 'user_id', 'id');
+    }
 }

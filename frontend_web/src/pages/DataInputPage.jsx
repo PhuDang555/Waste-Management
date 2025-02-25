@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   TextField,
@@ -17,8 +17,13 @@ import {
   UploadFile,
   KeyboardArrowDown
 } from "@mui/icons-material";
+import { useDispatch, useSelector } from "react-redux";
+import { listCollectingUnit } from "../store/features/dataInputSlice";
 
 const DataInputPage = () => {
+  const dispatch = useDispatch();
+  const { collectingUnits, loading, error } = useSelector((state) => state.dataInput);
+  // console.log(collectingUnits);
   const [formData, setFormData] = useState({
     owner: "SIÊU THỊ MM CN1",
     collectionUnit: "",
@@ -28,9 +33,16 @@ const DataInputPage = () => {
     notes: ""
   });
 
+  useEffect(() => {
+    if (!loading && (!collectingUnits || collectingUnits.length === 0)) {
+      dispatch(listCollectingUnit());
+    }
+  }, [dispatch, loading, collectingUnits]);
+  
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
+    // console.log(formData);
   };
 
   return (
@@ -63,7 +75,12 @@ const DataInputPage = () => {
                     }
                   }}
                 >
-                  <MenuItem value="">CÔNG TY GRAC</MenuItem>
+                  <MenuItem value="">Chọn đơn vị thu gom</MenuItem>
+                  {collectingUnits.map((unit) => (
+                    <MenuItem key={unit.id} value={unit.id}>
+                      {unit.display_name}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Grid>
