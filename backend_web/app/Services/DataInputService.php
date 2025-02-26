@@ -13,6 +13,11 @@ class DataInputService
         $this->dataInputRepository = $dataInputRepository;
     }
 
+    public function listWasteTypes()
+    {
+        return $this->dataInputRepository->listWasteTypes();
+    }
+
     public function listWasteCollectionManagement(int $id)
     {
         return $this->dataInputRepository->listWasteCollectionManagement($id);

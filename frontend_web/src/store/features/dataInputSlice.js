@@ -42,6 +42,7 @@ const dataInputSlice = createSlice({
     name: 'dataInput',
     initialState: {
       collectingUnits: [],
+      wasteTypes: [],
       loading: false,
       error: null,
     },
@@ -65,7 +66,7 @@ const dataInputSlice = createSlice({
       })
       .addCase(listWasteType.fulfilled, (state, action) => {
         state.loading = false;
-        state.collectingUnits = action.payload; // Lưu trữ danh sách loại rác
+        state.wasteTypes = action.payload; // Lưu trữ danh sách loại rác
       })
       .addCase(listWasteType.rejected, (state, action) => {
         state.loading = false;

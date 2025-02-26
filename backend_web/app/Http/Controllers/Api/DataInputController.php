@@ -19,6 +19,17 @@ class DataInputController extends Controller
         $this->dataInputService = $dataInputService;
     }
 
+    public function listWasteTypes()
+    {
+        try {
+            $data = $this->dataInputService->listWasteTypes();
+            
+            return $this->successResponse($data, "Danh sách loại rác thải");
+        } catch (\Throwable $e) {
+            return $this->errorResponse($e->getMessage(), 401);
+        }
+    }
+
     public function listWasteCollectionManagement(int $id)
     {
         $data = $this->dataInputService->listWasteCollectionManagement($id);

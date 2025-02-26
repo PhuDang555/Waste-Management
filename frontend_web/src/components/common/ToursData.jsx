@@ -28,7 +28,7 @@ const ToursData = () => {
               sx={{ color: colors.grey[200] }}
             />
             <CircularProgress
-              variant="determinate"
+              variant="indeterminate"
               disableShrink
               size={200}
               value={70}

@@ -18,12 +18,14 @@ import {
   KeyboardArrowDown
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import { listCollectingUnit } from "../store/features/dataInputSlice";
+import { listCollectingUnit, listWasteType } from "../store/features/dataInputSlice";
+import { fetchUser } from "../store/features/authSlice";
 
 const DataInputPage = () => {
   const dispatch = useDispatch();
-  const { collectingUnits, loading, error } = useSelector((state) => state.dataInput);
-  // console.log(collectingUnits);
+  const { collectingUnits, wasteTypes, loading} = useSelector((state) => state.dataInput);
+  
+  const { user, token } = useSelector((state) => state.auth);
   const [formData, setFormData] = useState({
     owner: "SIÊU THỊ MM CN1",
     collectionUnit: "",
@@ -34,11 +36,23 @@ const DataInputPage = () => {
   });
 
   useEffect(() => {
-    if (!loading && (!collectingUnits || collectingUnits.length === 0)) {
-      dispatch(listCollectingUnit());
+    if(!loading) {
+      if (!collectingUnits || collectingUnits.length === 0) {
+        dispatch(listCollectingUnit());
+      }
+
+      if(!wasteTypes || wasteTypes.length === 0){
+        dispatch(listWasteType());
+      }
     }
-  }, [dispatch, loading, collectingUnits]);
+    
+  }, [dispatch, loading, collectingUnits, wasteTypes]);
   
+    useEffect(() => {
+      if (token) {
+        dispatch(fetchUser());
+      }
+    }, [token, dispatch]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -52,7 +66,7 @@ const DataInputPage = () => {
           {/* Title with note */}
           <Box sx={{ mb: 4 }}>
             <Typography variant="h6" color="primary" gutterBottom>
-              CHỦ NGUỒN THẢI: {formData.owner}
+              CHỦ NGUỒN THẢI: {user.full_name}
             </Typography>
           </Box>
 
@@ -102,7 +116,12 @@ const DataInputPage = () => {
                     }
                   }}
                 >
-                  <MenuItem value="">NHỰA - PP</MenuItem>
+                  <MenuItem value="">Chọn loại rác thải</MenuItem>
+                  {wasteTypes.map((type) => (
+                    <MenuItem key={type.id} value={type.id}>
+                      {type.waste_type_name}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Grid>

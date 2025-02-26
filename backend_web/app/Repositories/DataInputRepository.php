@@ -6,12 +6,18 @@ use App\Enums\UnitType;
 use App\Interfaces\DataInputRepositoryInterface;
 use App\Models\WasteCollectionMannagement;
 use App\Models\WasteCollectionUnit;
+use App\Models\WasteType;
 
 class DataInputRepository implements DataInputRepositoryInterface
 {
     public function listWasteCollectionManagement(int $id)
     {
         return WasteCollectionMannagement::where('user_id', $id)->get();
+    }
+
+    public function listWasteTypes()
+    {
+        return WasteType::all(); // Trả về danh sách loại rác
     }
 
     public function listCollectingUnit()

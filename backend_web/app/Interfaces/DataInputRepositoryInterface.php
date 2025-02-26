@@ -4,6 +4,7 @@ namespace App\Interfaces;
 
 interface DataInputRepositoryInterface {
     public function listWasteCollectionManagement(int $id);
+    public function listWasteTypes();
     public function listCollectingUnit();
     public function listProcessingUnit();
     public function getWasteCollectionManagementById(int $id);

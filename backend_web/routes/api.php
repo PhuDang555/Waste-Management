@@ -19,6 +19,7 @@ Route::prefix('/v1')->group(function () {
 
     Route::prefix('data-input')->group(function () {
         Route::get('waste-collection-management/{id}', [DataInputController::class, 'listWasteCollectionManagement']);
+        Route::get('waste-type', [DataInputController::class, 'listWasteTypes']);
         Route::get('collecting-unit', [DataInputController::class, 'listCollectingUnit']);
         Route::get('processing-unit', [DataInputController::class, 'listProcessingUnit']);
         Route::get('waste-collection-management/{id}', [DataInputController::class, 'getWasteCollectionManagementById']);
