@@ -1,93 +1,182 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from 'react';
 import {
   Box,
-  TextField,
-  Button,
+  Paper,
   Typography,
   Grid,
   FormControl,
   Select,
   MenuItem,
-  Paper,
-  IconButton,
+  TextField,
   InputAdornment,
-} from "@mui/material";
-import {
-  ImageOutlined,
-  UploadFile,
-  KeyboardArrowDown
-} from "@mui/icons-material";
-import { useDispatch, useSelector } from "react-redux";
-import { listCollectingUnit, listWasteType } from "../store/features/dataInputSlice";
-import { fetchUser } from "../store/features/authSlice";
+  IconButton,
+  Button,
+} from '@mui/material';
+import { KeyboardArrowDown, ImageOutlined, UploadFile, Close } from '@mui/icons-material';
+import { useDispatch, useSelector } from 'react-redux';
+import { create, listCollectingUnit, listWasteType } from '../store/features/dataInputSlice';
+import { fetchUser } from '../store/features/authSlice';
+import { toast } from 'react-toastify';
 
 const DataInputPage = () => {
   const dispatch = useDispatch();
-  const { collectingUnits, wasteTypes, loading} = useSelector((state) => state.dataInput);
-  
+  const { collectingUnits, wasteTypes, loading } = useSelector((state) => state.dataInput);
   const { user, token } = useSelector((state) => state.auth);
+
+  const imageInputRef = useRef(null);
+  const fileInputRef = useRef(null);
+
   const [formData, setFormData] = useState({
-    owner: "SIÊU THỊ MM CN1",
-    collectionUnit: "",
-    wasteType: "",
-    quantity: "",
-    collectionDate: "",
-    notes: ""
+    collectionUnit: '',
+    wasteType: '',
+    quantity: '',
+    collectionDate: '',
+    notes: '',
+    license_plate: '',
   });
 
+  const [imageFile, setImageFile] = useState(null);
+  const [docFile, setDocFile] = useState(null);
+  const [errors, setErrors] = useState({
+    collectionUnit: '',
+    wasteType: '',
+    quantity: '',
+    collectionDate: '',
+    license_plate: '',
+  });
+
+  // Fetch data on mount
   useEffect(() => {
-    if(!loading) {
-      if (!collectingUnits || collectingUnits.length === 0) {
-        dispatch(listCollectingUnit());
-      }
-
-      if(!wasteTypes || wasteTypes.length === 0){
-        dispatch(listWasteType());
-      }
+    if (!loading) {
+      if (!collectingUnits?.length) dispatch(listCollectingUnit());
+      if (!wasteTypes?.length) dispatch(listWasteType());
     }
-    
   }, [dispatch, loading, collectingUnits, wasteTypes]);
-  
-    useEffect(() => {
-      if (token) {
-        dispatch(fetchUser());
-      }
-    }, [token, dispatch]);
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    if (token) dispatch(fetchUser());
+  }, [token, dispatch]);
+
+  // Handlers
+  const handleChange = (field) => (e) => {
+    const value = e.target.value;
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (value) setErrors((prev) => ({ ...prev, [field]: '' }));
+  };
+
+  const handleQuantityChange = (e) => {
+    const value = e.target.value;
+    if (value === '' || (Number(value) >= 0 && !isNaN(value))) {
+      setFormData((prev) => ({ ...prev, quantity: value }));
+      if (value) setErrors((prev) => ({ ...prev, quantity: '' }));
+    }
+  };
+
+  const handleFileChange = (setter) => (e) => {
+    const file = e.target.files[0];
+    if (file) setter(file);
+  };
+
+  const shortenFileName = (name) => (name.length > 20 ? `${name.slice(0, 17)}...` : name);
+
+  const validateForm = () => {
+    const newErrors = {};
+    const requiredFields = {
+      collectionUnit: 'Vui lòng chọn đơn vị thu gom',
+      wasteType: 'Vui lòng chọn loại rác',
+      quantity: 'Vui lòng nhập khối lượng',
+      collectionDate: 'Vui lòng chọn ngày thu gom',
+    };
+
+    Object.entries(requiredFields).forEach(([field, message]) => {
+      if (!formData[field]) newErrors[field] = message;
+    });
+
+    return newErrors;
+  };
+
+  const resetForm = () => {
+    setFormData({
+      collectionUnit: '',
+      wasteType: '',
+      quantity: '',
+      collectionDate: '',
+      notes: '',
+    });
+    setImageFile(null);
+    setDocFile(null);
+    setErrors({});
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // console.log(formData);
+    console.log('Submit triggered');
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    const formDataToSend = new FormData();
+    formDataToSend.append('user_id', user?.id);
+    formDataToSend.append('waste_collection_unit_id', formData.collectionUnit);
+    formDataToSend.append('waste_type_id', formData.wasteType);
+    formDataToSend.append('volume', formData.quantity);
+    formDataToSend.append('note', formData.notes);
+    formDataToSend.append(
+      'processing_time',
+      new Date(formData.collectionDate).toLocaleDateString('fr-CA')
+    );
+    
+    if (imageFile) formDataToSend.append('image', imageFile);
+    if (docFile) formDataToSend.append('license_plate', docFile);
+
+    try {
+      await dispatch(create(formDataToSend)).unwrap();
+      toast.success('Nhập liệu gửi thành công!');
+      resetForm();
+    } catch (error) {
+      console.error('Submit error:', error);
+      toast.error('Nhập dữ liệu thất bại, thử lại nhé!');
+    }
+  };
+
+  // Common styles
+  const inputStyles = {
+    bgcolor: 'white',
+    '& .MuiOutlinedInput-notchedOutline': { borderColor: '#0088cc' },
+  };
+
+  const uploadButtonStyles = {
+    bgcolor: '#40bfff',
+    color: 'white',
+    '&:hover': { bgcolor: '#0088cc' },
+    width: 80,
+    height: 80,
+    mb: 1,
   };
 
   return (
     <Box>
-      <Paper elevation={3} sx={{ p: 3, minHeight: "96vh",}}>
+      <Paper elevation={3} sx={{ p: 3, minHeight: '96vh' }}>
         <Box component="form" onSubmit={handleSubmit}>
-          {/* Title with note */}
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h6" color="primary" gutterBottom>
-              CHỦ NGUỒN THẢI: {user.full_name}
-            </Typography>
-          </Box>
+          <Typography variant="h6" color="primary" gutterBottom sx={{ mb: 4 }}>
+            CHỦ NGUỒN THẢI: {user?.full_name || 'Lỗi rồi'}
+          </Typography>
 
           <Grid container spacing={3}>
-            {/* First Row */}
+            {/* ĐƠN VỊ THU GOM */}
             <Grid item xs={12} md={6}>
-              <Typography variant="subtitle2" gutterBottom sx={{ color: "#0088cc" }}>
+              <Typography variant="subtitle2" gutterBottom sx={{ color: '#0088cc' }}>
                 ĐƠN VỊ THU GOM
               </Typography>
-              <FormControl fullWidth>
+              <FormControl fullWidth error={!!errors.collectionUnit}>
                 <Select
-                  value={formData.collectionUnit}
-                  onChange={(e) => setFormData({...formData, collectionUnit: e.target.value})}
+                  value={formData.collectionUnit || ''}
+                  onChange={handleChange('collectionUnit')}
                   displayEmpty
                   IconComponent={KeyboardArrowDown}
-                  sx={{ 
-                    bgcolor: "white",
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#0088cc"
-                    }
-                  }}
+                  sx={inputStyles}
                 >
                   <MenuItem value="">Chọn đơn vị thu gom</MenuItem>
                   {collectingUnits.map((unit) => (
@@ -96,78 +185,81 @@ const DataInputPage = () => {
                     </MenuItem>
                   ))}
                 </Select>
+                {errors.collectionUnit && (
+                  <Typography variant="caption" color="error">
+                    {errors.collectionUnit}
+                  </Typography>
+                )}
               </FormControl>
             </Grid>
 
+            {/* LOẠI RÁC */}
             <Grid item xs={12} md={6}>
-              <Typography variant="subtitle2" gutterBottom sx={{ color: "#0088cc" }}>
+              <Typography variant="subtitle2" gutterBottom sx={{ color: '#0088cc' }}>
                 LOẠI RÁC
               </Typography>
-              <FormControl fullWidth>
+              <FormControl fullWidth error={!!errors.wasteType}>
                 <Select
-                  value={formData.wasteType}
-                  onChange={(e) => setFormData({...formData, wasteType: e.target.value})}
+                  value={formData.wasteType || ''}
+                  onChange={handleChange('wasteType')}
                   displayEmpty
                   IconComponent={KeyboardArrowDown}
-                  sx={{ 
-                    bgcolor: "white",
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#0088cc"
-                    }
-                  }}
+                  sx={inputStyles}
                 >
-                  <MenuItem value="">Chọn loại rác thải</MenuItem>
+                  <MenuItem value="">Chọn loại rác thải</MenuItem>
                   {wasteTypes.map((type) => (
                     <MenuItem key={type.id} value={type.id}>
                       {type.waste_type_name}
                     </MenuItem>
                   ))}
                 </Select>
+                {errors.wasteType && (
+                  <Typography variant="caption" color="error">
+                    {errors.wasteType}
+                  </Typography>
+                )}
               </FormControl>
             </Grid>
 
-            {/* Second Row */}
+            {/* KHỐI LƯỢNG THU GOM */}
             <Grid item xs={12} md={6}>
-              <Typography variant="subtitle2" gutterBottom sx={{ color: "#0088cc" }}>
+              <Typography variant="subtitle2" gutterBottom sx={{ color: '#0088cc' }}>
                 KHỐI LƯỢNG THU GOM
               </Typography>
               <TextField
                 fullWidth
+                type="number"
                 value={formData.quantity}
-                onChange={(e) => setFormData({...formData, quantity: e.target.value})}
+                onChange={handleQuantityChange}
+                error={!!errors.quantity}
+                helperText={errors.quantity}
                 InputProps={{
                   endAdornment: <InputAdornment position="end">KG</InputAdornment>,
+                  inputProps: { min: 0, step: '0.01' },
                 }}
-                sx={{ 
-                  bgcolor: "white",
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#0088cc"
-                  }
-                }}
+                sx={inputStyles}
               />
             </Grid>
 
+            {/* THỜI GIAN THU GOM */}
             <Grid item xs={12} md={6}>
-              <Typography variant="subtitle2" gutterBottom sx={{ color: "#0088cc" }}>
+              <Typography variant="subtitle2" gutterBottom sx={{ color: '#0088cc' }}>
                 THỜI GIAN THU GOM
               </Typography>
               <TextField
                 fullWidth
                 type="date"
                 value={formData.collectionDate}
-                onChange={(e) => setFormData({...formData, collectionDate: e.target.value})}
-                sx={{ 
-                  bgcolor: "white",
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#0088cc"
-                  }
-                }}
+                onChange={handleChange('collectionDate')}
+                error={!!errors.collectionDate}
+                helperText={errors.collectionDate}
+                sx={inputStyles}
               />
             </Grid>
 
-            {/* Notes Field */}
+            {/* GHI CHÚ */}
             <Grid item xs={6}>
-              <Typography variant="subtitle2" gutterBottom sx={{ color: "#0088cc" }}>
+              <Typography variant="subtitle2" gutterBottom sx={{ color: '#0088cc' }}>
                 GHI CHÚ
               </Typography>
               <TextField
@@ -176,71 +268,99 @@ const DataInputPage = () => {
                 rows={4}
                 placeholder="Nhập ghi chú...."
                 value={formData.notes}
-                onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                sx={{ 
-                  bgcolor: "white",
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#0088cc"
-                  }
-                }}
+                onChange={handleChange('notes')}
+                sx={inputStyles}
               />
             </Grid>
 
-            {/* Upload Buttons */}
+            {/* UPLOAD */}
             <Grid item xs={6}>
-              <Box sx={{ display: "flex", gap: 2, justifyContent: "center", mt: 4 }}>
-                <Box sx={{ textAlign: "center" }}>
-                  <IconButton 
-                    sx={{ 
-                      bgcolor: "#40bfff", 
-                      color: "white",
-                      "&:hover": { bgcolor: "#0088cc" },
-                      width: 80,
-                      height: 80,
-                      mb: 1
-                    }}
-                  >
+              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mt: 4 }}>
+                <Box sx={{ textAlign: 'center' }}>
+                  <IconButton sx={uploadButtonStyles} onClick={() => imageInputRef.current.click()}>
                     <ImageOutlined sx={{ fontSize: 40 }} />
                   </IconButton>
-                  <Typography variant="caption" sx={{ display: "block", color: "#0088cc" }}>
+                  <Typography variant="caption" sx={{ display: 'block', color: '#0088cc' }}>
                     UPLOAD<br />HÌNH ẢNH
                   </Typography>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={imageInputRef}
+                    onChange={handleFileChange(setImageFile)}
+                    style={{ display: 'none' }}
+                  />
+                  {imageFile && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, position: 'relative' }}>
+                      <Typography variant="caption" sx={{ bgcolor: '#f1f1f1', px: 1, py: 0.5, borderRadius: 1 }}>
+                        {shortenFileName(imageFile.name)}
+                      </Typography>
+                      <IconButton
+                        sx={{
+                          position: 'absolute',
+                          top: '-18px',
+                          right: '-15px',
+                          bgcolor: 'white',
+                          color: 'red',
+                          '&:hover': { bgcolor: '#f8d7da' },
+                        }}
+                        size="small"
+                        onClick={() => setImageFile(null)}
+                      >
+                        <Close fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  )}
                 </Box>
 
-                <Box sx={{ textAlign: "center" }}>
-                  <IconButton 
-                    sx={{ 
-                      bgcolor: "#40bfff", 
-                      color: "white",
-                      "&:hover": { bgcolor: "#0088cc" },
-                      width: 80,
-                      height: 80,
-                      mb: 1
-                    }}
-                  >
+                <Box sx={{ textAlign: 'center' }}>
+                  <IconButton sx={uploadButtonStyles} onClick={() => fileInputRef.current.click()}>
                     <UploadFile sx={{ fontSize: 40 }} />
                   </IconButton>
-                  <Typography variant="caption" sx={{ display: "block", color: "#0088cc" }}>
+                  <Typography variant="caption" sx={{ display: 'block', color: '#0088cc' }}>
                     UPLOAD<br />BIÊN BẢN
                   </Typography>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={handleFileChange(setDocFile)}
+                    style={{ display: 'none' }}
+                  />
+                  {docFile && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, position: 'relative' }}>
+                      <Typography variant="caption" sx={{ bgcolor: '#f1f1f1', px: 1, py: 0.5, borderRadius: 1 }}>
+                        {shortenFileName(docFile.name)}
+                      </Typography>
+                      <IconButton
+                        sx={{
+                          position: 'absolute',
+                          top: '-18px',
+                          right: '-15px',
+                          bgcolor: 'white',
+                          color: 'red',
+                          '&:hover': { bgcolor: '#f8d7da' },
+                        }}
+                        size="small"
+                        onClick={() => setDocFile(null)}
+                      >
+                        <Close fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  )}
                 </Box>
               </Box>
             </Grid>
           </Grid>
 
           {/* Submit Button */}
-          <Box sx={{ mt: 4, textAlign: "center" }}>
+          <Box sx={{ mt: 4, textAlign: 'center' }}>
             <Button
               variant="contained"
               size="large"
-              sx={{ 
-                bgcolor: "#ff7f50",
-                "&:hover": { bgcolor: "#ff6347" },
-                px: 4,
-                py: 1,
-                borderRadius: 2
-              }}
+              sx={{ bgcolor: '#ff7f50', '&:hover': { bgcolor: '#ff6347' }, px: 4, py: 1, borderRadius: 2 }}
               type="submit"
+              disabled={loading}
             >
               HOÀN TẤT
             </Button>

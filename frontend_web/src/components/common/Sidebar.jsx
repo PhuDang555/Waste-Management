@@ -65,10 +65,11 @@ const Sidebar = ({ sidebarWidth }) => {
   const { user, token } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    if (token) {
+    // Chỉ gọi fetchUser khi có token nhưng chưa có thông tin user
+    if (token && !user) {
       dispatch(fetchUser());
     }
-  }, [token, dispatch]);
+  }, [token, user, dispatch]);
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);

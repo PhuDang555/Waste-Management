@@ -21,12 +21,12 @@ trait ApiResponse
         ], $status);
     }
 
-    protected function errorValidate($message = 'Lỗi xảy ra', $validated = "Sai định dạng", $status = 400)
+    protected function errorValidate($message = 'Lỗi xảy ra', $validated = null, $status = 400)
     {
         return response()->json([
             'status' => 'error',
             'message' => $message,
-            'errors' => $validated,
+            'errors' => $validated ? $validated->errors() : [],
         ], $status);
     }
 }

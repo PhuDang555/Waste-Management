@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Interfaces\DataInputRepositoryInterface;
+use Illuminate\Support\Facades\Log;
 
 class DataInputService
 {
@@ -42,10 +43,14 @@ class DataInputService
     {
         if (isset($data['image'])) {
             $imagePath = $data['image']->store('images', 'public');
-            $data['image_path'] = $imagePath;
-            unset($data['image']);
+            $data['image'] = $imagePath;
         }
 
+        if (isset($data['license_plate'])) {
+            $imagePath = $data['license_plate']->store('images', 'public');
+            $data['license_plate'] = $imagePath;
+        }
+        Log::info($data);
         return $this->dataInputRepository->create($data);
     }
 
@@ -53,10 +58,14 @@ class DataInputService
     {
         if (isset($data['image'])) {
             $imagePath = $data['image']->store('images', 'public');
-            $data['image_path'] = $imagePath;
-            unset($data['image']);
+            $data['image'] = $imagePath;
         }
-        
+
+        if (isset($data['license_plate'])) {
+            $imagePath = $data['license_plate']->store('images', 'public');
+            $data['license_plate'] = $imagePath;
+        }
+
         return $this->dataInputRepository->edit($data, $id);
     }
 

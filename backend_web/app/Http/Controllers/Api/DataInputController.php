@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\DataInputService;
 use Illuminate\Http\Request;
 use App\Traits\ApiResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class DataInputController extends Controller
@@ -23,19 +24,20 @@ class DataInputController extends Controller
     {
         try {
             $data = $this->dataInputService->listWasteTypes();
-            
-            return $this->successResponse($data, "Danh sách loại rác thải");
+
+            return $this->successResponse($data, "Danh sách loại rác thải",200);
         } catch (\Throwable $e) {
             return $this->errorResponse($e->getMessage(), 401);
         }
     }
 
-    public function listWasteCollectionManagement(int $id)
+    public function listWasteCollectionManagement(Request $request)
     {
-        $data = $this->dataInputService->listWasteCollectionManagement($id);
+
+        $data = $this->dataInputService->listWasteCollectionManagement($request->id);
 
         try {
-            return $this->successResponse($data, 'Danh sách thu gom rác');
+            return $this->successResponse($data, 'Danh sách thu gom rác',200);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), 401);
         }
@@ -46,7 +48,7 @@ class DataInputController extends Controller
         $data = $this->dataInputService->listCollectingUnit();
 
         try {
-            return $this->successResponse($data, 'Danh sách đơn vị thu gom');
+            return $this->successResponse($data, 'Danh sách đơn vị thu gom',200);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), 401);
         }
@@ -83,19 +85,22 @@ class DataInputController extends Controller
             $validated = Validator::make($request->all(), [
                 'image'          => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
                 'license_plate'  => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-                'processing_time'=> 'required|date_format:Y-m-d H:i:s',
+                'processing_time'=> 'required|date_format:Y-m-d',
                 'volume'         => 'required|numeric|min:0',
                 'note'           => 'nullable|string|max:500',
             ]);
 
             if ($validated->fails()) {
+                // dd($validated->errors());
                 return $this->errorResponse('Dữ liệu không hợp lệ',$validated->errors(), 400);
             }
 
             $data = $this->dataInputService->create($request->all());
-            return $this->successResponse($data, 'Tạo thành công');
+            // dd('2');
+            return $this->successResponse($data, 'Tạo thành công',201);
 
         } catch (\Exception $e) {
+            // dd('3');
             return $this->errorResponse($e->getMessage(), 401);
         }
     }

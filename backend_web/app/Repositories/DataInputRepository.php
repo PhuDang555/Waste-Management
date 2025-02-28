@@ -7,12 +7,15 @@ use App\Interfaces\DataInputRepositoryInterface;
 use App\Models\WasteCollectionMannagement;
 use App\Models\WasteCollectionUnit;
 use App\Models\WasteType;
+use Illuminate\Support\Facades\Log;
 
 class DataInputRepository implements DataInputRepositoryInterface
 {
     public function listWasteCollectionManagement(int $id)
     {
-        return WasteCollectionMannagement::where('user_id', $id)->get();
+        $list = WasteCollectionMannagement::where('user_id', $id)->get();
+
+        return $list;
     }
 
     public function listWasteTypes()

@@ -4,91 +4,98 @@ import {
   Grid,
   Paper,
   Pagination,
+  CircularProgress
 } from "@mui/material";
 import CollectionItem from "../components/common/CollectionItem";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { fetchUser } from "../store/features/authSlice";
+import { listDataInput } from "../store/features/dataInputSlice"; // Giả sử action là getDataInputList
 
 const CollectionManagementPage = () => {
-  
-  const sampleData = [
-    {
-      id: 1,
-      createdAt: "30.10.2024, 17:00",
-      collectionDate: "31.10.2024",
-      wasteType: "Rác thải nhựa",
-      quantity: 300
-    },
-    {
-      id: 2,
-      createdAt: "30.10.2024, 11:00",
-      collectionDate: "31.10.2025",
-      wasteType: "Rác thải rắn",
-      quantity: 300
-    },
-    {
-      id: 3,
-      createdAt: "30.10.2024, 12:00",
-      collectionDate: "21.10.2021",
-      wasteType: "Rác thải",
-      quantity: 300
-    },
-    {
-      id: 4,
-      createdAt: "30.10.2024, 17:00",
-      collectionDate: "31.10.2024",
-      wasteType: "Rác thải dd",
-      quantity: 300
-    },
-    {
-      id: 5,
-      createdAt: "30.10.2024, 17:00",
-      collectionDate: "31.10.2024",
-      wasteType: "Rác thải cc",
-      quantity: 300
-    },
-    {
-      id: 6,
-      createdAt: "30.10.2024, 17:00",
-      collectionDate: "31.10.2024",
-      wasteType: "Rác thải gg",
-      quantity: 300
-    },
-  ];
+  const dispatch = useDispatch();
+  const { dataInputs, error, loading } = useSelector(state => state.dataInput);
+  const { user, isAuthenticated } = useSelector(state => state.auth);
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 12;
+
+  // Chỉ gọi fetchUser nếu không có user trong state
+  useEffect(() => {
+    if (isAuthenticated && !user) {
+      dispatch(fetchUser());
+    }
+  }, [isAuthenticated, user, dispatch]);
+
+  // Gọi API lấy danh sách khi có user
+  useEffect(() => {
+    if (user && user.id) {
+      dispatch(listDataInput(user.id));
+    }
+  }, [user, dispatch]);
+
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
+
+  const totalPages = Math.ceil((dataInputs?.length || 0) / itemsPerPage);
+  const displayedItems = dataInputs ? dataInputs.slice((page - 1) * itemsPerPage, page * itemsPerPage) : [];
 
   return (
     <Box>
-      <Paper elevation={3} sx={{ p: 3, minHeight: "100vh"}}>
-            {/* Page Header */}
-      <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Typography variant="h5">
-         QUẢN LÝ LỊCH THU GOM
-        </Typography>
-        {/* Add any header actions/filters here */}
-      </Box>
+      <Paper elevation={3} sx={{ p: 3, minHeight: "100vh", position: "relative" }}>
+        <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Typography variant="h5">
+            QUẢN LÝ LỊCH THU GOM
+          </Typography>
+        </Box>
 
-      {/* Grid of Collection Items */}
-      <Grid container spacing={3}>
-        {sampleData.map((item, index) => ( // Showing 6 items for demonstration
-          <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-            <CollectionItem data={item} />
+        {loading ? (
+          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "50vh" }}>
+            <CircularProgress />
+          </Box>
+        ) : error ? (
+          <Box sx={{ textAlign: "center", color: "error.main", mt: 4 }}>
+            <Typography variant="h6">Đã xảy ra lỗi khi tải dữ liệu</Typography>
+            <Typography variant="body2">{error.message || "Vui lòng thử lại sau"}</Typography>
+          </Box>
+        ) : !dataInputs || dataInputs.length === 0 ? (
+          <Box sx={{ textAlign: "center", mt: 4 }}>
+            <Typography variant="h6">Không có dữ liệu thu gom</Typography>
+          </Box>
+        ) : (
+          <Grid container spacing={1}>
+            {displayedItems.map((item) => (
+              <Grid item xs={12} key={item.id}>
+                <CollectionItem data={item} />
+              </Grid>
+            ))}
           </Grid>
-        ))}
-      </Grid>
+        )}
 
-      {/* Pagination */}
-      <Box sx={{ 
-        display: "flex",
-        justifyContent: "center",
-        position: "fixed",
-        bottom: 0, 
-        left: "50%", 
-        py: 2,
-       }}>
-        <Pagination 
-          count={10} 
-          color="primary" 
-          size="large"
-        />
-      </Box>
+        {!loading && dataInputs && dataInputs.length > 0 && (
+          <Box sx={{
+            display: "flex",
+            justifyContent: "center",
+            width: "100%",
+            position: "sticky",
+            bottom: 16,
+            mt: 4
+          }}>
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={handlePageChange}
+              color="primary"
+              size="large"
+              // sx={{ 
+              //   bgcolor: "white", 
+              //   p: 1, 
+              //   borderRadius: 2,
+              //   boxShadow: 2
+              // }}
+            />
+          </Box>
+        )}
       </Paper>
     </Box>
   );
