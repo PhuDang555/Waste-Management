@@ -13,7 +13,7 @@ class DataInputRepository implements DataInputRepositoryInterface
 {
     public function listWasteCollectionManagement(int $id)
     {
-        $list = WasteCollectionMannagement::where('user_id', $id)->get();
+        $list = WasteCollectionMannagement::with('wasteType')->where('user_id', $id)->get();
 
         return $list;
     }
@@ -35,7 +35,9 @@ class DataInputRepository implements DataInputRepositoryInterface
 
     public function getWasteCollectionManagementById(int $id)
     {
-        return WasteCollectionMannagement::find($id);
+        $data = WasteCollectionMannagement::with('wasteType')->find($id);
+
+        return $data;
     }
 
     public function create(array $data)

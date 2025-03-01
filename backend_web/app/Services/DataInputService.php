@@ -36,7 +36,10 @@ class DataInputService
 
     public function getWasteCollectionManagementById(int $id)
     {
-        return $this->dataInputRepository->getWasteCollectionManagementById($id);
+        $data = $this->dataInputRepository->getWasteCollectionManagementById($id);
+        $data->image = $data->image ? asset('storage/' . $data->image) : null;
+        $data->license_plate = $data->license_plate ? asset('storage/' . $data->license_plate) : null;
+        return  $data;
     }
 
     public function create(array $data)
