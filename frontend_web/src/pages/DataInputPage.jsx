@@ -17,15 +17,20 @@ import { useDispatch, useSelector } from 'react-redux';
 import { create, listCollectingUnit, listWasteType } from '../store/features/dataInputSlice';
 import { fetchUser } from '../store/features/authSlice';
 import { toast } from 'react-toastify';
+import { useLocation } from 'react-router-dom';
 
 const DataInputPage = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const { collectingUnits, wasteTypes, loading } = useSelector((state) => state.dataInput);
   const { user, token } = useSelector((state) => state.auth);
 
   const imageInputRef = useRef(null);
   const fileInputRef = useRef(null);
 
+  // Kiểm tra nếu có dữ liệu chỉnh sửa từ state
+  const { editData, isEdit } = location.state || {};
+  console.log(editData);
   const [formData, setFormData] = useState({
     collectionUnit: '',
     wasteType: '',
@@ -33,6 +38,7 @@ const DataInputPage = () => {
     collectionDate: '',
     notes: '',
     license_plate: '',
+    image:'',
   });
 
   const [imageFile, setImageFile] = useState(null);
@@ -42,8 +48,23 @@ const DataInputPage = () => {
     wasteType: '',
     quantity: '',
     collectionDate: '',
-    license_plate: '',
   });
+
+  // Điền dữ liệu từ editData khi vào chế độ chỉnh sửa
+  useEffect(() => {
+    if (isEdit && editData) {
+      setFormData({
+        collectionUnit: editData.waste_collection_unit_id || '',
+        wasteType: editData.waste_type_id || '',
+        quantity: editData.volume || '',
+        collectionDate: editData.processing_time || '',
+        notes: editData.note || '',
+      });
+      
+      setImageFile(editData.license_plate || null);
+      setDocFile(editData.image || null);
+    }
+  }, [editData, isEdit]);
 
   // Fetch data on mount
   useEffect(() => {
@@ -362,7 +383,7 @@ const DataInputPage = () => {
               type="submit"
               disabled={loading}
             >
-              HOÀN TẤT
+              {isEdit ? 'CẬP NHẬT' : 'HOÀN TẤT'}
             </Button>
           </Box>
         </Box>

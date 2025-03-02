@@ -6,13 +6,13 @@ import {
   IconButton,
 } from '@mui/material';
 import { Edit, DeleteOutline } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify'; 
 import { deleted } from '../../store/features/dataInputSlice';
 
 const CollectionItem = ({ data }) => {
   const dispatch = useDispatch();
-
+  const navigate = useNavigate();
   // Xử lý xóa
   const handleDelete = async () => {
     try {
@@ -22,6 +22,10 @@ const CollectionItem = ({ data }) => {
       toast.error('Xóa thất bại: ' + (error.message || 'Lỗi không rõ'));
     }
   };
+
+  const handleEdit = () =>{
+    navigate('/dashboard/data-input', { state: { editData: data, isEdit: true } });
+  }
 
   return (
     <Paper
@@ -55,10 +59,10 @@ const CollectionItem = ({ data }) => {
       <Box sx={{ mt: 4, pl: 1 }}>
         <Box sx={{ mb: 0 }}>
           <Typography variant="body1" sx={{ mb: 1 }}>
-            • Thời gian thu gom: Ngày {data.processing_time}
+            • Thời gian thu gom: {data.processing_time}
           </Typography>
           <Typography variant="body1" sx={{ mb: 1 }}>
-            • Loại rác thu gom: {data.waste_type_id}
+            • Loại rác thu gom: {data.waste_type.waste_type_name}
           </Typography>
           <Typography variant="body1">
             • Khối lượng: {data.volume}kg
@@ -83,9 +87,11 @@ const CollectionItem = ({ data }) => {
             '&:hover': { color: '#000' },
           }}
         >
-          <Link to={`/dashboard/collect-manage/${data.id}`}>
+          <Box
+            onClick={handleEdit}
+          >
             <Edit />
-          </Link>
+          </Box>
         </IconButton>
         <IconButton
           size="small"
