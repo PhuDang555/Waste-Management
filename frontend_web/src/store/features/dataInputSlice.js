@@ -223,6 +223,19 @@ const dataInputSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
         state.selectedDataInput = null; // Reset nếu lỗi
+      })
+      // Xử lý edit
+      .addCase(edit.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(edit.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload;
+      })
+      .addCase(edit.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
     },
 });

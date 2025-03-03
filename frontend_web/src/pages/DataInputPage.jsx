@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { KeyboardArrowDown, ImageOutlined, UploadFile, Close } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
-import { create, listCollectingUnit, listWasteType } from '../store/features/dataInputSlice';
+import { create, edit, listCollectingUnit, listWasteType } from '../store/features/dataInputSlice';
 import { fetchUser } from '../store/features/authSlice';
 import { toast } from 'react-toastify';
 import { useLocation } from 'react-router-dom';
@@ -30,7 +30,7 @@ const DataInputPage = () => {
 
   // Kiểm tra nếu có dữ liệu chỉnh sửa từ state
   const { editData, isEdit } = location.state || {};
-  console.log(editData);
+  
   const [formData, setFormData] = useState({
     collectionUnit: '',
     wasteType: '',
@@ -43,6 +43,9 @@ const DataInputPage = () => {
 
   const [imageFile, setImageFile] = useState(null);
   const [docFile, setDocFile] = useState(null);
+  const [existingImageUrl, setExistingImageUrl] = useState(''); // URL ảnh cũ
+  const [existingDocUrl, setExistingDocUrl] = useState(''); // URL biên bản cũ
+
   const [errors, setErrors] = useState({
     collectionUnit: '',
     wasteType: '',
@@ -61,8 +64,8 @@ const DataInputPage = () => {
         notes: editData.note || '',
       });
       
-      setImageFile(editData.license_plate || null);
-      setDocFile(editData.image || null);
+      setExistingImageUrl(editData.license_plate || '');
+      setExistingDocUrl(editData.image || '');
     }
   }, [editData, isEdit]);
 
@@ -126,12 +129,14 @@ const DataInputPage = () => {
     });
     setImageFile(null);
     setDocFile(null);
+    setExistingDocUrl('');
+    setExistingImageUrl('');
     setErrors({});
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Submit triggered');
+    
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -153,12 +158,17 @@ const DataInputPage = () => {
     if (docFile) formDataToSend.append('license_plate', docFile);
 
     try {
-      await dispatch(create(formDataToSend)).unwrap();
-      toast.success('Nhập liệu gửi thành công!');
+      if (isEdit && editData?.id) {
+        await dispatch(edit({ id: editData.id, data: formDataToSend })).unwrap();
+        toast.success('Cập nhật thành công!');
+      } else {
+        await dispatch(create(formDataToSend)).unwrap();
+        toast.success('Nhập liệu gửi thành công!');
+      }
       resetForm();
     } catch (error) {
       console.error('Submit error:', error);
-      toast.error('Nhập dữ liệu thất bại, thử lại nhé!');
+      toast.error(isEdit ? 'Cập nhật thất bại!' : 'Nhập dữ liệu thất bại, thử lại nhé!');
     }
   };
 
@@ -311,10 +321,12 @@ const DataInputPage = () => {
                     onChange={handleFileChange(setImageFile)}
                     style={{ display: 'none' }}
                   />
-                  {imageFile && (
+                  {(imageFile || existingImageUrl) && (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, position: 'relative' }}>
                       <Typography variant="caption" sx={{ bgcolor: '#f1f1f1', px: 1, py: 0.5, borderRadius: 1 }}>
-                        {shortenFileName(imageFile.name)}
+                      {imageFile
+                          ? shortenFileName(imageFile.name)
+                          : shortenFileName(existingImageUrl.split('/').pop())}
                       </Typography>
                       <IconButton
                         sx={{
@@ -326,7 +338,10 @@ const DataInputPage = () => {
                           '&:hover': { bgcolor: '#f8d7da' },
                         }}
                         size="small"
-                        onClick={() => setImageFile(null)}
+                        onClick={() => {
+                          setImageFile(null);
+                          if (isEdit) setExistingImageUrl(''); // Xóa URL cũ nếu ở chế độ edit
+                        }}
                       >
                         <Close fontSize="small" />
                       </IconButton>
@@ -348,10 +363,12 @@ const DataInputPage = () => {
                     onChange={handleFileChange(setDocFile)}
                     style={{ display: 'none' }}
                   />
-                  {docFile && (
+                  {(docFile || existingDocUrl) && (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, position: 'relative' }}>
                       <Typography variant="caption" sx={{ bgcolor: '#f1f1f1', px: 1, py: 0.5, borderRadius: 1 }}>
-                        {shortenFileName(docFile.name)}
+                        {docFile
+                            ? shortenFileName(docFile.name)
+                            : shortenFileName(existingDocUrl.split('/').pop())}
                       </Typography>
                       <IconButton
                         sx={{
@@ -363,7 +380,10 @@ const DataInputPage = () => {
                           '&:hover': { bgcolor: '#f8d7da' },
                         }}
                         size="small"
-                        onClick={() => setDocFile(null)}
+                        onClick={() => {
+                          setDocFile(null);
+                          if (isEdit) setExistingDocUrl(''); // Xóa URL cũ nếu ở chế độ edit
+                        }}
                       >
                         <Close fontSize="small" />
                       </IconButton>
