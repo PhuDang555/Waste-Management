@@ -6,6 +6,7 @@ import {
   Switch
 } from '@mui/material';
 import SideBarAdmin from '../components/common/SideBarAdmin';
+import { useState } from 'react';
 
 
 const PermissionsManagement = () => {
@@ -25,6 +26,17 @@ const PermissionsManagement = () => {
     { id: 11, title: "Xem thông tin chung (Quy trình thu gom - tái chế, hồ sơ năng lực, giấy phép, phương tiện, đối tác, trạm trung chuyển)", enabled: true },
     { id: 12, title: "Cập nhật thông tin chung (Quy trình thu gom - tái chế, hồ sơ năng lực, giấy phép, phương tiện, đối tác, trạm trung chuyển)", enabled: false },
   ];
+  const [permissions, setPermissions] = useState(permissionItems);
+
+  const handleToggle = (id) => {
+    setPermissions((prevPermissions) =>
+      prevPermissions.map((permission) =>
+        permission.id === id
+          ? { ...permission, enabled: !permission.enabled }
+          : permission
+      )
+    );
+  };
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', border: '2px solid #4FC3F7', borderRadius: 2 }}>
@@ -62,20 +74,24 @@ const PermissionsManagement = () => {
                     </Typography>
 
                     <Box sx={{ width: '100%' }}>
-                    {permissionItems.map((item) => (
+                    {permissions.map((item) => (
                         <Box
                         key={item.id}
                         sx={{
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            padding: 0.5,
+                            padding: 0.7,
                             backgroundColor: '#f5f5f5',
                             mb: 1,
                         }}
                         >
                         <Typography variant="body1">{item.title}</Typography>
-                        <Switch checked={item.enabled} color="primary" />
+                        <Switch
+                          checked={item.enabled}
+                          onChange={() => handleToggle(item.id)}
+                          color="primary"
+                        />
                         </Box>
                     ))}
                     </Box>
@@ -89,7 +105,7 @@ const PermissionsManagement = () => {
                     flexDirection: 'column',
                     justifyContent: 'flex-end',
                     height: '100%',
-                    minHeight: 'calc(100vh - 64px)',
+                    // minHeight: 'calc(100vh - 64px)',
                 }}
                 >
                 <Button

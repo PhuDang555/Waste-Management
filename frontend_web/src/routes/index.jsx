@@ -16,6 +16,8 @@ import AdminLayout from "../components/layout/AdminLayout";
 import FunctionAdminPage from "../pages/FunctionAdminPage";
 import DataInputAdminPage from "../pages/DataInputAdminPage";
 import PermissionsManagement from "../pages/PermissionsManagement";
+import SupportAdminPage from "../pages/SupportAdminPage";
+import SupportDetailAdminPage from "../pages/SupportDetailAdminPage";
 
 export const router = createBrowserRouter([
     {
@@ -124,8 +126,17 @@ export const router = createBrowserRouter([
             },
             {
               path: "customer-support",
-              index: true,
-              element: <ProfilePage />,
+              children: [
+                {
+                  index: true,
+                  element: <SupportAdminPage />,
+                },
+                {
+                  path: ":id",
+                  index: true,
+                  element: <SupportDetailAdminPage />,
+                },
+              ],
             },
           ],
         },
