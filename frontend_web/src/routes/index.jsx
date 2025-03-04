@@ -14,6 +14,8 @@ import CollectionDetailPage from "../pages/CollectionDetailPage";
 import MainLayout from "../components/layout/MainLayout";
 import AdminLayout from "../components/layout/AdminLayout";
 import FunctionAdminPage from "../pages/FunctionAdminPage";
+import DataInputAdminPage from "../pages/DataInputAdminPage";
+import PermissionsManagement from "../pages/PermissionsManagement";
 
 export const router = createBrowserRouter([
     {
@@ -90,6 +92,40 @@ export const router = createBrowserRouter([
             {
                 index: true,
                 element: <FunctionAdminPage />,
+            },
+            {
+              path: "data-input",
+              index: true,
+              element: <DataInputAdminPage />,
+            },
+            {
+              path: "collect-manage",
+              children: [
+                {
+                  index: true,
+                  element: <CollectionManagementPage />,
+                },
+                {
+                  path: ":id",
+                  index: true,
+                  element: <CollectionDetailPage />,
+                },
+              ],
+            },
+            {
+              path: "statistics-reports",
+              index: true,
+              element: <StatisticsReport />,
+            },
+            {
+              path: "management",
+              index: true,
+              element: <PermissionsManagement />,
+            },
+            {
+              path: "customer-support",
+              index: true,
+              element: <ProfilePage />,
             },
           ],
         },

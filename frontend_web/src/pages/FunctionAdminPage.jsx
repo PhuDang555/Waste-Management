@@ -1,147 +1,103 @@
-import { useSelector } from 'react-redux';
-import { Box, Button, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { 
+  Box, 
+  Container, 
+  Paper, 
+  Typography, 
+  Grid,
+  Avatar
+} from '@mui/material';
+import { Link } from 'react-router-dom';
 
 const FunctionAdminPage = () => {
-  const { user } = useSelector((state) => state.auth); 
-  const navigate = useNavigate();
-
-  
-  const handleNavigation = (path) => {
-    navigate(path);
-  };
+  // Array of menu items
+  const menuItems = [
+    { id: 1, title: "NHẬP LIỆU", url: "/admin/data-input" },
+    { id: 2, title: "THỐNG KÊ VÀ BÁO CÁO", url: "/admin/statistics-reports" },
+    { id: 3, title: "QUẢN TRỊ", url: "/admin/management" },
+    { id: 4, title: "CHĂM SÓC KHÁCH HÀNG", url: "/admin/customer-support" }
+  ];
 
   return (
     <Box
       sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100vh',
-        bgcolor: '#fef5e7', 
-        p: 4,
+        width: '100%',
+        minHeight: '94vh',
+        backgroundColor: '#FFF5E6',
+        padding: 3,
+        borderRadius: 4,
+        border: '2px solid #4FC3F7',
       }}
     >
-      <Box
-        sx={{
-          display: 'flex',
+      <Box 
+        sx={{ 
+          display: 'flex', 
           justifyContent: 'flex-end',
-          alignItems: 'center',
-          mb: 4,
+          marginBottom: 4
         }}
       >
-        <Typography variant="body1" sx={{ color: '#1976d2', mr: 1 }}>
-          {user?.full_name || 'ADMIN'} 
-        </Typography>
-        <Box
-          sx={{
-            width: 30,
-            height: 30,
-            borderRadius: '50%',
-            bgcolor: '#1976d2',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            flexDirection: 'column',
+            alignItems: 'center'
           }}
         >
-          <Typography variant="caption">✔</Typography>
+          <Avatar 
+            sx={{ 
+              width: 56, 
+              height: 56,
+              bgcolor: '#7B68EE' 
+            }}
+          >A</Avatar>
+          <Typography 
+            variant="subtitle2" 
+            sx={{ 
+              mt: 1,
+              fontWeight: 'bold' 
+            }}
+          >
+            ADMIN
+          </Typography>
         </Box>
       </Box>
 
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: 3, 
-          flexGrow: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <Button
-          variant="outlined"
-          sx={{
-            width: 200,
-            height: 100,
-            borderRadius: 10,
-            borderColor: '#1976d2',
-            color: '#1976d2',
-            fontSize: 18,
-            fontWeight: 'bold',
-            textTransform: 'none',
-            '&:hover': {
-              borderColor: '#1565c0',
-              color: '#1565c0',
-            },
-          }}
-          onClick={() => handleNavigation('/user/data-input')}
-        >
-          NHẬP LIỆU
-        </Button>
-
-        <Button
-          variant="outlined"
-          sx={{
-            width: 200,
-            height: 100,
-            borderRadius: 10,
-            borderColor: '#1976d2',
-            color: '#1976d2',
-            fontSize: 18,
-            fontWeight: 'bold',
-            textTransform: 'none',
-            '&:hover': {
-              borderColor: '#1565c0',
-              color: '#1565c0',
-            },
-          }}
-          onClick={() => handleNavigation('/user/report')}
-        >
-          THỐNG KÊ VÀ BÁO CÁO
-        </Button>
-
-        <Button
-          variant="outlined"
-          sx={{
-            width: 200,
-            height: 100,
-            borderRadius: 10,
-            borderColor: '#1976d2',
-            color: '#1976d2',
-            fontSize: 18,
-            fontWeight: 'bold',
-            textTransform: 'none',
-            '&:hover': {
-              borderColor: '#1565c0',
-              color: '#1565c0',
-            },
-          }}
-          onClick={() => handleNavigation('/user/collect-manage')}
-        >
-          QUẢN TRỊ
-        </Button>
-
-        <Button
-          variant="outlined"
-          sx={{
-            width: 200,
-            height: 100,
-            borderRadius: 10,
-            borderColor: '#1976d2',
-            color: '#1976d2',
-            fontSize: 18,
-            fontWeight: 'bold',
-            textTransform: 'none',
-            '&:hover': {
-              borderColor: '#1565c0',
-              color: '#1565c0',
-            },
-          }}
-          onClick={() => handleNavigation('/user/support')}
-        >
-          CHĂM SÓC KHÁCH HÀNG
-        </Button>
-      </Box>
+      <Container maxWidth="md" sx={{ marginTop: 15 }}>
+        <Grid container spacing={4}>
+          {menuItems.map((item) => (
+            <Grid item xs={12} sm={6} key={item.id}>
+              <Paper
+                elevation={3}
+                sx={{
+                  height: 80,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 6,
+                  cursor: 'pointer',
+                  border: '1px solid #4FC3F7',
+                  '&:hover': {
+                    boxShadow: 6,
+                    backgroundColor: '#F5FBFF'
+                  }
+                }}
+              > 
+                <Link to={item.url} style={{ textDecoration: 'none' }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 'bold',
+                      color: '#3498db',
+                      textAlign: 'center'
+                    }}
+                  >
+                    {item.title}
+                  </Typography>
+                </Link>
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
     </Box>
   );
 };
