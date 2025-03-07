@@ -7,7 +7,7 @@ import DataInputPage from "../pages/DataInputPage";
 import CollectionManagementPage from "../pages/CollectionManagementPage";
 import StatisticsReport from "../pages/StatisticsReport";
 import RecyclingProcessPage from "../pages/recyclingProcessPage";
-import CapabilityPage from "../pages/capabilityPage";
+import CapabilityPage from "../pages/CapabilityPage";
 import SupportPage from "../pages/SupportPage";
 import ReservationPage from "../pages/ReservationPage";
 import CollectionDetailPage from "../pages/CollectionDetailPage";
@@ -18,6 +18,11 @@ import DataInputAdminPage from "../pages/DataInputAdminPage";
 import PermissionsManagement from "../pages/PermissionsManagement";
 import SupportAdminPage from "../pages/SupportAdminPage";
 import SupportDetailAdminPage from "../pages/SupportDetailAdminPage";
+import ManagementLayout from "../components/layout/ManagementLayout";
+import ProfileAdminPage from "../pages/ProfileAdminPage";
+import ListCustomerPage from "../pages/ListCustomerPage";
+import WastCategoriesPage from "../pages/WastCategoriesPage";
+import CollectUnitAdminPage from "../pages/CollectUnitAdminPage";
 
 export const router = createBrowserRouter([
     {
@@ -121,8 +126,33 @@ export const router = createBrowserRouter([
             },
             {
               path: "management",
-              index: true,
-              element: <PermissionsManagement />,
+              element: <ManagementLayout />,
+              children: [
+                  {
+                    index: true,
+                    element: <PermissionsManagement />,
+                  },
+                  {
+                    path: "create-account",
+                    index: true,
+                    element: <ProfileAdminPage />,
+                  },
+                  {
+                    path: "customer-list",
+                    index: true,
+                    element: <ListCustomerPage />,
+                  },
+                  {
+                    path: "waste-categories",
+                    index: true,
+                    element: <WastCategoriesPage />,
+                  },
+                  {
+                    path: "collect-units",
+                    index: true,
+                    element: <CollectUnitAdminPage />,
+                  },
+                ]
             },
             {
               path: "customer-support",
