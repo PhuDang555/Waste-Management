@@ -6,38 +6,51 @@ import {
   Switch
 } from '@mui/material';
 
-import { useState } from 'react';
-
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchUser } from '../store/features/authSlice';
+import { listFeaturePermission } from '../store/features/featurePermissionSlice';
 
 const PermissionsManagement = () => {
-  
-  // Permission list items
-  const permissionItems = [
-    { id: 1, title: "Nhập liệu chất thải", enabled: true },
-    { id: 2, title: "Nhập liệu khối lượng tái chế", enabled: false },
-    { id: 3, title: "Báo cáo thống kê", enabled: true },
-    { id: 4, title: "Tạo tài khoản", enabled: false },
-    { id: 5, title: "Thêm nhóm quyền", enabled: false },
-    { id: 6, title: "Danh sách khách hàng", enabled: false },
-    { id: 7, title: "Danh mục chất thải", enabled: false },
-    { id: 8, title: "Hỗ trợ", enabled: true },
-    { id: 9, title: "Chăm sóc khách hàng", enabled: false },
-    { id: 10, title: "Sàn giao dịch phế liệu", enabled: true },
-    { id: 11, title: "Xem thông tin chung (Quy trình thu gom - tái chế, hồ sơ năng lực, giấy phép, phương tiện, đối tác, trạm trung chuyển)", enabled: true },
-    { id: 12, title: "Cập nhật thông tin chung (Quy trình thu gom - tái chế, hồ sơ năng lực, giấy phép, phương tiện, đối tác, trạm trung chuyển)", enabled: false },
-  ];
-  const [permissions, setPermissions] = useState(permissionItems);
+  const dispatch = useDispatch();
+  const { user, isAuthenticated } = useSelector(state => state.auth);
+  const { featurePermissions, error, loading } = useSelector(state => state.featurePermission);
+  const [permissions, setPermissions] = useState([]);
 
+  useEffect(() => {
+    if (isAuthenticated && !user) {
+      dispatch(fetchUser());
+    }
+  }, [isAuthenticated, user, dispatch]);
+  
+  useEffect(() => {
+    if (user && user.id) {
+      dispatch(listFeaturePermission(user.id));
+    }
+  }, [user, dispatch]);
+  useEffect(() => {
+    if (featurePermissions && featurePermissions.length > 0) {
+      setPermissions(featurePermissions);
+    }
+  }, [featurePermissions]);
+
+  if (loading) return <Typography>Đang tải...</Typography>;
+  if (error) return <Typography>Lỗi: {error.message || error}</Typography>;
+  if (!featurePermissions) return <Typography>Không tìm thấy dữ liệu</Typography>;
+  
   const handleToggle = (id) => {
     setPermissions((prevPermissions) =>
       prevPermissions.map((permission) =>
         permission.id === id
-          ? { ...permission, enabled: !permission.enabled }
+          ? { ...permission, is_active: !permission.is_active }
           : permission
       )
     );
   };
 
+  const handleUpdate = () => {
+    console.log(permissions);
+  }
   return (
     <Box sx={{ flex: 1, padding: 3 }}>
       <Grid container spacing={3}>
@@ -56,7 +69,9 @@ const PermissionsManagement = () => {
                       component="div"
                       sx={{ backgroundColor: '#EEEEEE', pr: 5, pl: 1, pt: 0.5, pb: 0.5 }}
                   >
-                      VẬN HÀNH
+                      {user?.permission_id === 1 ? 'ADMIN' 
+                      : user?.permission_id === 2 ? 'QUẢN LÝ' 
+                      : 'VẬN HÀNH'}
                   </Typography>
                   </Box>
               </Box>
@@ -82,9 +97,9 @@ const PermissionsManagement = () => {
                           mb: 1,
                       }}
                       >
-                      <Typography variant="body1">{item.title}</Typography>
+                      <Typography variant="body1">{item.feature.feature_name}</Typography>
                       <Switch
-                        checked={item.enabled}
+                        checked={item.is_active == 1 ? true : false}
                         onChange={() => handleToggle(item.id)}
                         color="primary"
                       />
@@ -114,6 +129,7 @@ const PermissionsManagement = () => {
                   },
                   mb:1,
                   }}
+                  onClick={handleUpdate}
               >
                   CẬP NHẬT
               </Button>

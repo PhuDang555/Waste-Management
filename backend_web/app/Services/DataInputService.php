@@ -34,6 +34,10 @@ class DataInputService
         return $this->dataInputRepository->listProcessingUnit();
     }
 
+    public function listWasteOwner()
+    {
+        return $this->dataInputRepository->listWasteOwner();
+    }
     public function getWasteCollectionManagementById(int $id)
     {
         $data = $this->dataInputRepository->getWasteCollectionManagementById($id);

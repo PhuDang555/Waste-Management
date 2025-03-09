@@ -12,6 +12,7 @@ class WasteCollectionMannagement extends Model
         'volume',
         'user_id',
         'waste_type_id',
+        'waste_owner_id',
         'waste_collection_unit_id',
         'waste_processing_unit_id',
         'note',

@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { KeyboardArrowDown, ImageOutlined, UploadFile, Close } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
-import { create, edit, listCollectingUnit, listWasteType } from '../store/features/dataInputSlice';
+import { create, edit, listCollectingUnit, listProcessingUnit, listWasteOwner, listWasteType } from '../store/features/dataInputSlice';
 import { fetchUser } from '../store/features/authSlice';
 import { toast } from 'react-toastify';
 import { Link, useLocation } from 'react-router-dom';
@@ -22,35 +22,40 @@ import { Link, useLocation } from 'react-router-dom';
 const DataInputAdminPage = () => {
   const dispatch = useDispatch();
   const location = useLocation();
-  const { collectingUnits, wasteTypes, loading } = useSelector((state) => state.dataInput);
+  const { collectingUnits, wasteTypes, proccessingUnits, wasteOwners, loading } = useSelector((state) => state.dataInput);
   const { user, token } = useSelector((state) => state.auth);
-
+  
   const imageInputRef = useRef(null);
   const fileInputRef = useRef(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [docFile, setDocFile] = useState(null);
+  const [existingImageUrl, setExistingImageUrl] = useState(''); // URL ảnh cũ
+  const [existingDocUrl, setExistingDocUrl] = useState(''); // URL biên bản cũ
 
   // Kiểm tra nếu có dữ liệu chỉnh sửa từ state
   const { editData, isEdit } = location.state || {};
   
   const [formData, setFormData] = useState({
     collectionUnit: '',
+    processUnit: '',
+    wasteOwner: '',
     wasteType: '',
     quantity: '',
     collectionDate: '',
+    collectionTime: '',
     notes: '',
     license_plate: '',
     image:'',
   });
 
-  const [imageFile, setImageFile] = useState(null);
-  const [docFile, setDocFile] = useState(null);
-  const [existingImageUrl, setExistingImageUrl] = useState(''); // URL ảnh cũ
-  const [existingDocUrl, setExistingDocUrl] = useState(''); // URL biên bản cũ
-
   const [errors, setErrors] = useState({
     collectionUnit: '',
+    processUnit: '',
+    wasteOwner: '',
     wasteType: '',
     quantity: '',
     collectionDate: '',
+    collectionTime: '',
   });
 
   // Điền dữ liệu từ editData khi vào chế độ chỉnh sửa
@@ -58,9 +63,12 @@ const DataInputAdminPage = () => {
     if (isEdit && editData) {
       setFormData({
         collectionUnit: editData.waste_collection_unit_id || '',
+        processUnit: editData.waste_processing_unit_id || '',
+        wasteOwner: editData.waste_owner_id || '',
         wasteType: editData.waste_type_id || '',
         quantity: editData.volume || '',
-        collectionDate: editData.processing_time || '',
+        collectionDate: editData.processing_time.slice(0, 10) || '',
+        collectionTime: editData.processing_time.slice(11, 19).split(":").map(part => part.padStart(2, "0")).join(":") || '',
         notes: editData.note || '',
       });
       
@@ -74,8 +82,10 @@ const DataInputAdminPage = () => {
     if (!loading) {
       if (!collectingUnits?.length) dispatch(listCollectingUnit());
       if (!wasteTypes?.length) dispatch(listWasteType());
+      if (!proccessingUnits?.length) dispatch(listProcessingUnit());
+      if (!wasteOwners?.length) dispatch(listWasteOwner());
     }
-  }, [dispatch, loading, collectingUnits, wasteTypes]);
+  }, [dispatch, loading, collectingUnits?.length, wasteTypes?.length, proccessingUnits?.length, wasteOwners?.length]);
 
   useEffect(() => {
     if (token) dispatch(fetchUser());
@@ -107,9 +117,12 @@ const DataInputAdminPage = () => {
     const newErrors = {};
     const requiredFields = {
       collectionUnit: 'Vui lòng chọn đơn vị thu gom',
+      processUnit: 'Vui lòng chọn đơn vị xử lý',
+      wasteOwner: 'Vui lòng chọn chủ nguồn thải',
       wasteType: 'Vui lòng chọn loại rác',
       quantity: 'Vui lòng nhập khối lượng',
       collectionDate: 'Vui lòng chọn ngày thu gom',
+      collectionTime: 'Vui lòng chọn giờ thu gom',
     };
 
     Object.entries(requiredFields).forEach(([field, message]) => {
@@ -122,9 +135,12 @@ const DataInputAdminPage = () => {
   const resetForm = () => {
     setFormData({
       collectionUnit: '',
+      processUnit: '',
+      wasteOwner: '',
       wasteType: '',
       quantity: '',
       collectionDate: '',
+      collectionTime: '',
       notes: '',
     });
     setImageFile(null);
@@ -143,16 +159,17 @@ const DataInputAdminPage = () => {
       return;
     }
 
+    const processingTime = `${formData.collectionDate} ${formData.collectionTime}:00`;
+    
     const formDataToSend = new FormData();
     formDataToSend.append('user_id', user?.id);
     formDataToSend.append('waste_collection_unit_id', formData.collectionUnit);
+    formDataToSend.append('waste_processing_unit_id', formData.processUnit);
+    formDataToSend.append('waste_owner_id', formData.wasteOwner);
     formDataToSend.append('waste_type_id', formData.wasteType);
     formDataToSend.append('volume', formData.quantity);
     formDataToSend.append('note', formData.notes);
-    formDataToSend.append(
-      'processing_time',
-      new Date(formData.collectionDate).toLocaleDateString('fr-CA')
-    );
+    formDataToSend.append('processing_time',processingTime);
     
     if (imageFile) formDataToSend.append('image', imageFile);
     if (docFile) formDataToSend.append('license_plate', docFile);
@@ -211,9 +228,9 @@ const DataInputAdminPage = () => {
                 <Link to="/admin/collect-manage">Quản lý đơn tái chế</Link>
             </Button>
           </Box>
-          <Grid container spacing={3}>
+          <Grid container spacing={4}>
             {/* ĐƠN VỊ THU GOM */}
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={6} >
               <Typography variant="subtitle2" gutterBottom sx={{ color: '#0088cc' }}>
                 ĐƠN VỊ THU GOM
               </Typography>
@@ -244,18 +261,18 @@ const DataInputAdminPage = () => {
               <Typography variant="subtitle2" gutterBottom sx={{ color: '#0088cc' }}>
                 CHỦ NGUỒN THẢI
               </Typography>
-              <FormControl fullWidth error={!!errors.collectionUnit}>
+              <FormControl fullWidth error={!!errors.wasteOwner}>
                 <Select
-                  value={formData.collectionUnit || ''}
-                  onChange={handleChange('collectionUnit')}
+                  value={formData.wasteOwner || ''}
+                  onChange={handleChange('wasteOwner')}
                   displayEmpty
                   IconComponent={KeyboardArrowDown}
                   sx={inputStyles}
                 >
                   <MenuItem value="">Chọn chủ nguồn thải</MenuItem>
-                  {collectingUnits.map((unit) => (
+                  {wasteOwners.map((unit) => (
                     <MenuItem key={unit.id} value={unit.id}>
-                      {unit.display_name}
+                      {unit.username}
                     </MenuItem>
                   ))}
                 </Select>
@@ -315,8 +332,15 @@ const DataInputAdminPage = () => {
             {/* THỜI GIAN THU GOM */}
             <Grid item xs={12} md={6}>
               <Typography variant="subtitle2" gutterBottom sx={{ color: '#0088cc' }}>
-                THỜI GIAN THU GOM
+                THỜI GIAN VẬN CHUYỂN
               </Typography>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  gap: 2,
+                }}
+              >
               <TextField
                 fullWidth
                 type="date"
@@ -326,6 +350,16 @@ const DataInputAdminPage = () => {
                 helperText={errors.collectionDate}
                 sx={inputStyles}
               />
+              <TextField
+                fullWidth
+                type="time"
+                value={formData.collectionTime}
+                onChange={handleChange('collectionTime')}
+                error={!!errors.collectionTime}
+                helperText={errors.collectionTime}
+                sx={inputStyles}
+              />
+              </Box>
             </Grid>
             
             {/* ĐƠN VỊ TÁI CHÊ */}
@@ -333,16 +367,16 @@ const DataInputAdminPage = () => {
               <Typography variant="subtitle2" gutterBottom sx={{ color: '#0088cc' }}>
                 ĐƠN VỊ TÁI CHẾ
               </Typography>
-              <FormControl fullWidth error={!!errors.collectionUnit}>
+              <FormControl fullWidth error={!!errors.processUnit}>
                 <Select
-                  value={formData.collectionUnit || ''}
-                  onChange={handleChange('collectionUnit')}
+                  value={formData.processUnit || ''}
+                  onChange={handleChange('processUnit')}
                   displayEmpty
                   IconComponent={KeyboardArrowDown}
                   sx={inputStyles}
                 >
                   <MenuItem value="">Chọn đơn vị tái chế</MenuItem>
-                  {collectingUnits.map((unit) => (
+                  {proccessingUnits.map((unit) => (
                     <MenuItem key={unit.id} value={unit.id}>
                       {unit.display_name}
                     </MenuItem>
@@ -471,7 +505,7 @@ const DataInputAdminPage = () => {
               type="submit"
               disabled={loading}
             >
-              {isEdit ? 'CẬP NHẬT' : 'HOÀN TẤT'}
+              {isEdit ? 'CẬP NHẬT' : 'TẠO ĐƠN'}
             </Button>
           </Box>
         </Box>

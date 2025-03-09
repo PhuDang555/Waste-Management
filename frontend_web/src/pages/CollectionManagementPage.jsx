@@ -25,7 +25,7 @@ const CollectionManagementPage = () => {
       dispatch(fetchUser());
     }
   }, [isAuthenticated, user, dispatch]);
-
+  
   // Gọi API lấy danh sách khi có user
   useEffect(() => {
     if (user && user.id) {
@@ -66,7 +66,7 @@ const CollectionManagementPage = () => {
           <Grid container spacing={1}>
             {displayedItems.map((item) => (
               <Grid item xs={12} key={item.id}>
-                <CollectionItem data={item} />
+                <CollectionItem data={item} user={user} />
               </Grid>
             ))}
           </Grid>

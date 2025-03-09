@@ -16,4 +16,9 @@ class Permission extends Model
     public function users(){
         return $this->hasMany(User::class,'permission_id');
     }
+
+    public function featurePermissions()
+    {
+        return $this->hasMany(FeaturePermission::class, 'permission_id');
+    }
 }

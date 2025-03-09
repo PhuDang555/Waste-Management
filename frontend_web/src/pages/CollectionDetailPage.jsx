@@ -8,12 +8,15 @@ import { useEffect, useState } from 'react';
 import { getDataInputId } from '../store/features/dataInputSlice';
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 import ImageModal from '../components/common/ImageModal';
+import { fetchUser } from '../store/features/authSlice';
 const CollectionDetailPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const ADMIN = 1;
     const { id } = useParams(); // Lấy id từ URL
     const { selectedDataInput, loading, error } = useSelector((state) => state.dataInput);
-    
+    const { user, isAuthenticated } = useSelector(state => state.auth);
+
     const [open, setOpen] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null); 
 
@@ -26,11 +29,32 @@ const CollectionDetailPage = () => {
         setOpen(false);
         setSelectedImage(null);
     };
-    // console.log(selectedDataInput);
+    
+    const previousPage = () => {
+        navigate(-1); // Go back to previous page
+      };
+
+    const handleTime = (time) => {
+        const formattedDate = new Date(time).toISOString().slice(0, 19).replace("T", " ");
+        return formattedDate;
+      };
+
     const handleEdit = () => {
-        navigate('/dashboard/data-input', { state: { editData: selectedDataInput, isEdit: true } });
+
+        if(user?.permission_id == ADMIN) {
+            navigate('/admin/data-input', { state: { editData: selectedDataInput, isEdit: true } });
+        } else{
+            navigate('/dashboard/data-input', { state: { editData: selectedDataInput, isEdit: true } });
+        }
     }
     
+    useEffect(() => {
+        if (isAuthenticated && !user) {
+          dispatch(fetchUser());
+        }
+      }, [isAuthenticated, user, dispatch]);
+    
+
     useEffect(() => {
       dispatch(getDataInputId(id));
     }, [dispatch, id]);
@@ -61,16 +85,30 @@ const CollectionDetailPage = () => {
                 >
                     QUẢN LÝ LỊCH THU GOM
                 </Typography>
-                <Button
-                    variant='contained'
-                    size='large'
-                    sx={{ bgcolor: '#ff7f50', '&:hover': { bgcolor: '#ff6347' }, px: 4, py: 1, borderRadius: 2 }}
-                    type='submit'
-                    loading={loading}
-                    onClick={handleEdit}
-                >
-                    Chỉnh sửa
-                </Button>
+                <Box>
+                    {user?.permission_id == 1 && 
+                    <Button
+                        variant='contained'
+                        size='large'
+                        sx={{ bgcolor: '#ff7f50', '&:hover': { bgcolor: '#ff6347' }, px: 4, py: 1, borderRadius: 2, mr: 2 }}
+                        type='submit'
+                        loading={loading}
+                        onClick={previousPage}
+                    >
+                        Trở lại
+                    </Button>
+                    }   
+                    <Button
+                        variant='contained'
+                        size='large'
+                        sx={{ bgcolor: '#ff7f50', '&:hover': { bgcolor: '#ff6347' }, px: 4, py: 1, borderRadius: 2 }}
+                        type='submit'
+                        loading={loading}
+                        onClick={handleEdit}
+                    >
+                        Chỉnh sửa
+                    </Button>
+                </Box>
             </Box>
             <Card
                 sx={{
@@ -94,7 +132,7 @@ const CollectionDetailPage = () => {
                     boxShadow: 1
                 }}
                 >
-                {selectedDataInput.created_at}
+                {handleTime(selectedDataInput.created_at)}
                 </Box>
 
                 <CardContent sx={{ pt: 4 }}>

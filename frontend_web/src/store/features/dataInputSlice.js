@@ -20,6 +20,44 @@ export const listCollectingUnit = createAsyncThunk(
   }
 );
 
+export const listProcessingUnit = createAsyncThunk(
+  'dataInput/listProcessingUnit',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      // console.log(token);
+      const response = await axios.get('http://127.0.0.1:8000/api/v1/data-input/processing-unit',{
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      // console.log(response.data.data);
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const listWasteOwner = createAsyncThunk(
+  'dataInput/listWasteOwner',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      // console.log(token);
+      const response = await axios.get('http://127.0.0.1:8000/api/v1/data-input/waste-owner',{
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+    
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 export const listWasteType = createAsyncThunk(
   'dataInput/listWasteType',
   async (_, { rejectWithValue }) => {
@@ -131,6 +169,8 @@ const dataInputSlice = createSlice({
     name: 'dataInput',
     initialState: {
       collectingUnits: [],
+      proccessingUnits: [],
+      wasteOwners: [],
       selectedDataInput: null,
       wasteTypes: [],
       dataInputs: [],
@@ -167,6 +207,32 @@ const dataInputSlice = createSlice({
         state.wasteTypes = action.payload; // Lưu trữ danh sách loại rác
       })
       .addCase(listWasteType.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Xử lý listProcessingUnit
+      .addCase(listProcessingUnit.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(listProcessingUnit.fulfilled, (state, action) => {
+        state.loading = false;
+        state.proccessingUnits = action.payload; // Lưu trữ danh sách đơn vị xử lý
+      })
+      .addCase(listProcessingUnit.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Xử lý listWasteOwner
+      .addCase(listWasteOwner.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(listWasteOwner.fulfilled, (state, action) => {
+        state.loading = false;
+        state.wasteOwners = action.payload; // Lưu trữ danh sách chủ rác
+      })
+      .addCase(listWasteOwner.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

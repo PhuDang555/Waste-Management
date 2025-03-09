@@ -60,19 +60,30 @@ class DataInputController extends Controller
         $data = $this->dataInputService->listProcessingUnit();
 
         try {
-            return $this->successResponse($data, 'Danh sách đơn vị xử lý');
+            return $this->successResponse($data, 'Danh sách đơn vị xử lý',200);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), 401);
         }
 
     }
 
+    public function listWasteOwner()
+    {
+        $data = $this->dataInputService->listWasteOwner();
+
+        try {
+            return $this->successResponse($data, 'Danh sách chủ nguồn thải',200);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 401);
+        }
+
+    }
     public function getWasteCollectionManagementById(int $id)
     {
         $data = $this->dataInputService->getWasteCollectionManagementById($id);
 
         try {
-            return $this->successResponse($data, 'Thông tin thu gom rác');
+            return $this->successResponse($data, 'Thông tin thu gom rác',200);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), 401);
         }
@@ -80,27 +91,25 @@ class DataInputController extends Controller
     }
 
     public function create(Request $request)
-    {
+    {   
         try {
             $validated = Validator::make($request->all(), [
                 'image'          => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
                 'license_plate'  => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-                'processing_time'=> 'required|date_format:Y-m-d',
+                'processing_time'=> 'required|date_format:Y-m-d H:i:s',
                 'volume'         => 'required|numeric|min:0',
                 'note'           => 'nullable|string|max:500',
             ]);
 
             if ($validated->fails()) {
-                // dd($validated->errors());
-                return $this->errorResponse('Dữ liệu không hợp lệ',$validated->errors(), 400);
+                return $this->errorResponse($validated->errors(), 400);
             }
 
             $data = $this->dataInputService->create($request->all());
-            // dd('2');
+            
             return $this->successResponse($data, 'Tạo thành công',201);
 
         } catch (\Exception $e) {
-            // dd('3');
             return $this->errorResponse($e->getMessage(), 401);
         }
     }
@@ -120,7 +129,7 @@ class DataInputController extends Controller
             ]);
 
             if ($validated->fails()) {
-                return $this->errorResponse('Dữ liệu không hợp lệ',$validated->errors(), 400);
+                return $this->errorResponse($validated->errors(), 400);
             }
 
             $data = $this->dataInputService->edit($request->all(), $id);
