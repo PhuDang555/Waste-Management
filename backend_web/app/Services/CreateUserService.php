@@ -23,9 +23,9 @@ class CreateUserService
         return $this->createUserRepository->listUser();
     }
 
-    public function listProvice()
+    public function listProvince()
     {
-        return $this->createUserRepository->listProvice();
+        return $this->createUserRepository->listProvince();
     }
     public function listDistrict(int $id)
     {

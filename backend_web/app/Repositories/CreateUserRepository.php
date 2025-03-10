@@ -6,7 +6,7 @@ use App\Enums\AccountType;
 use App\Interfaces\CreateUserRepositoryInterface;
 use App\Models\District;
 use App\Models\FeaturePermission;
-use App\Models\Provice;
+use App\Models\Province;
 use App\Models\User;
 use App\Models\Ward;
 use App\Models\WasteCollectionMannagement;
@@ -27,15 +27,15 @@ class CreateUserRepository implements CreateUserRepositoryInterface
 
         return $data;
     }
-    public function listProvice()
+    public function listProvince()
     {
-        $data = Provice::all();
+        $data = Province::all();
 
         return $data;
     }
     public function listDistrict(int $id)
     {
-        $data = District::where('provice_id', $id)->get();
+        $data = District::where('province_id', $id)->get();
 
         return $data;
     }

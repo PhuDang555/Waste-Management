@@ -11,12 +11,12 @@ class Ward extends Model
         'id',
         'name',
         'full_name',
-        'provice_id',
+        'province_id',
         'district_id',
     ];
 
     public function provice(){
-        return $this->belongsToMany(Provice::class, 'provice_id');
+        return $this->belongsToMany(Province::class, 'province_id');
     }
 
     public function district(){

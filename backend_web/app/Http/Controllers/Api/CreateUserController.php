@@ -45,10 +45,10 @@ class CreateUserController extends Controller
         }
     }
 
-    public function listProvice(Request $request)
+    public function listProvince(Request $request)
     {
 
-        $data = $this->createUserService->listProvice();
+        $data = $this->createUserService->listProvince();
 
         try {
             return $this->successResponse($data, 'Danh sách tỉnh/thành phố',200);
