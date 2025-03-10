@@ -19,6 +19,15 @@ class FeaturePermissionService
         return $this->featurePermissionRepository->listFeaturePermission($id);
     }
 
+    public function updateListFeaturePermission(array $data)
+    {
+        foreach($data as $item){
+            $feature = $this->featurePermissionRepository->findById($item['id']);
+
+            $feature->is_active = $item['is_active'];
+            $feature->save();
+        }
+    }
     public function create(array $data)
     {
         return $this->featurePermissionRepository->create($data);

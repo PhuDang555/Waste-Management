@@ -32,6 +32,7 @@ Route::prefix('/v1')->group(function () {
 
     Route::prefix('management')->group(function () {
         Route::get('feature-permission', [FeaturePermissionController::class, 'listFeaturePermission']);
+        Route::post('update-list-feature', [FeaturePermissionController::class, 'updateListFeaturePermission']);
 
     });
 })->middleware('auth:api');

@@ -17,16 +17,20 @@ import { PhotoCamera, CalendarToday } from '@mui/icons-material';
 
 const ProfileAdminPage = () => {
   const [formData, setFormData] = React.useState({
-    displayName: 'SIÊU THỊ MEGA MARKET',
+    displayName: '',
     address: '',
     province: '',
     district: '',
     ward: '',
     userGroup: '',
     managementUnit: '',
-    phone: '0989090013',
+    phone: '',
     hasExpiration: true,
     expirationDate: '',
+    'username': '',
+    'password': '',
+    'confirmPassword':'',
+    'image': ''
   });
 
   const handleExpirationChange = (event) => {
@@ -42,8 +46,8 @@ const ProfileAdminPage = () => {
         <Grid container spacing={3}>
           {/* Left side - Form */}
           <Grid item xs={12} md={8}>
-            <Typography variant="h6" gutterBottom>
-              THÔNG TIN KHÁCH HÀNG
+            <Typography variant="h5" sx={{ mb: 3, color: '#0288D1', fontWeight: 'bold' }}>
+              THÊM TÀI KHOẢN
             </Typography>
             
             <Box component="form" noValidate sx={{ mt: 2 }}>
@@ -116,7 +120,9 @@ const ProfileAdminPage = () => {
                       size="small"
                     >
                       <MenuItem value="">Nhóm quyền</MenuItem>
-                      <MenuItem value="admin">Quản lý</MenuItem>
+                      <MenuItem value="1">ADMIN</MenuItem>
+                      <MenuItem value="2">QUẢN LÝ</MenuItem>
+                      <MenuItem value="3">VẬN HÀNH</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -140,16 +146,6 @@ const ProfileAdminPage = () => {
                     Tổng CTR sinh hoạt
                   </Typography>
                   {/* Add CTR input fields here */}
-                </Grid>
-
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Liên hệ"
-                    value={formData.displayName}
-                    onChange={(e) => setFormData({...formData, displayName: e.target.value})}
-                    size="small"
-                  />
                 </Grid>
 
                 <Grid item xs={12}>
@@ -210,7 +206,7 @@ const ProfileAdminPage = () => {
                       fullWidth
                       label="Số điện thoại/Email"
                       value={formData.phone}
-                      disabled
+                      // disabled
                       size="small"
                     />
                   </Grid>

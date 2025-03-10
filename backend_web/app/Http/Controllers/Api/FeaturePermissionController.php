@@ -23,7 +23,7 @@ class FeaturePermissionController extends Controller
 
     public function listFeaturePermission(Request $request)
     {
-        
+
         $data = $this->featurePermissionService->listFeaturePermission($request->id);
 
         try {
@@ -33,12 +33,25 @@ class FeaturePermissionController extends Controller
         }
     }
 
+    public function updateListFeaturePermission(Request $request)
+    {
+        try {
+
+            $this->featurePermissionService->updateListFeaturePermission($request->all());
+
+            return $this->successResponse([], 'Update list thành công',200);
+
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 401);
+        }
+    }
+
     public function create(Request $request)
-    {   
+    {
         try {
 
             $data = $this->featurePermissionService->create($request->all());
-            
+
             return $this->successResponse($data, 'Tạo thành công',201);
 
         } catch (\Exception $e) {
@@ -48,8 +61,6 @@ class FeaturePermissionController extends Controller
 
     public function edit(Request $request, int $id)
     {
-
-
         try {
 
             $data = $this->featurePermissionService->edit($request->all(), $id);

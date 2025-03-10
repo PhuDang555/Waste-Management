@@ -10,7 +10,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { error, token } = useSelector((state) => state.auth);
-
+  const ADMIN = 1;
   const [onRequest, setOnRequest] = useState(false);
   const [loginProgress, setLoginProgress] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -19,17 +19,11 @@ const LoginPage = () => {
     password:''
   });
 
-  useEffect(() => {
-    if (token) {
-      navigate("/dashboard", { replace: true });
-    }
-  }, [token, navigate]);
-
-  useEffect(() => {
-    if (token) {
-      dispatch(fetchUser());
-    }
-  }, [token, dispatch]);
+  // useEffect(() => {
+  //   if (token) {
+  //     navigate("/dashboard", { replace: true });
+  //   }
+  // }, [token, navigate]);
 
   const handleChange = (e) => {
     const {name, value} = e.target;
@@ -50,6 +44,9 @@ const LoginPage = () => {
     const result = await dispatch(loginUser(formData));
     
     if(result.payload?.token){
+
+      const user = await dispatch(fetchUser());
+      
       setTimeout(() => {
         clearInterval(interval);
       }, 2000);
@@ -59,7 +56,11 @@ const LoginPage = () => {
       }, 2100);
   
       setTimeout(() => {
-        navigate("/dashboard");
+        if (user.payload?.permission_id === ADMIN) {
+          navigate("/admin");
+        } else {
+          navigate("/dashboard");
+        }
       }, 3300);
     }else{
       clearInterval(interval);

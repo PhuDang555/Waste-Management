@@ -20,6 +20,25 @@ export const listFeaturePermission = createAsyncThunk(
   }
 );
 
+export const updateListFeaturePermission = createAsyncThunk(
+  'featurePermission/updateList',
+  async (data, { rejectWithValue }) => {
+    try {
+      console.log(data);
+      const token = localStorage.getItem('token');
+      const response = await axios.post('http://127.0.0.1:8000/api/v1/management/update-list-feature',data, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 const featurePermissionSlice = createSlice({
     name: 'featurePermission',
     initialState: {
@@ -39,6 +58,19 @@ const featurePermissionSlice = createSlice({
         state.featurePermissions = action.payload; // Lưu trữ danh sách nhóm quyền
       })
       .addCase(listFeaturePermission.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(updateListFeaturePermission.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateListFeaturePermission.fulfilled, (state, action) => {
+        state.loading = false;
+        state.featurePermissions = action.payload; // Lưu trữ danh sách nhóm quyền
+      })
+      .addCase(updateListFeaturePermission.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

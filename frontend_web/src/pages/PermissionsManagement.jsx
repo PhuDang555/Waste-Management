@@ -9,13 +9,16 @@ import {
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUser } from '../store/features/authSlice';
-import { listFeaturePermission } from '../store/features/featurePermissionSlice';
+import { listFeaturePermission, updateListFeaturePermission } from '../store/features/featurePermissionSlice';
+import { toast } from 'react-toastify';
 
 const PermissionsManagement = () => {
   const dispatch = useDispatch();
   const { user, isAuthenticated } = useSelector(state => state.auth);
   const { featurePermissions, error, loading } = useSelector(state => state.featurePermission);
+
   const [permissions, setPermissions] = useState([]);
+  const [originalPermissions, setOriginalPermissions] = useState([]);
 
   useEffect(() => {
     if (isAuthenticated && !user) {
@@ -28,9 +31,11 @@ const PermissionsManagement = () => {
       dispatch(listFeaturePermission(user.id));
     }
   }, [user, dispatch]);
+
   useEffect(() => {
     if (featurePermissions && featurePermissions.length > 0) {
       setPermissions(featurePermissions);
+      setOriginalPermissions(featurePermissions);
     }
   }, [featurePermissions]);
 
@@ -48,8 +53,28 @@ const PermissionsManagement = () => {
     );
   };
 
-  const handleUpdate = () => {
-    console.log(permissions);
+  const getChangedPermissions = () => {
+    return permissions.filter((permission, index) => 
+      permission.is_active !== originalPermissions[index].is_active
+    );
+  };
+  console.log(getChangedPermissions());
+  
+  const handleUpdate = async () => {
+    const changedPermissions = getChangedPermissions();
+
+    if (changedPermissions.length > 0) {
+      try {
+        await dispatch(updateListFeaturePermission(changedPermissions)); 
+        setOriginalPermissions(permissions);
+        toast.success("Cập nhật thành công!");
+      } catch (error) {
+        console.log(error);
+        toast.error("Cập nhật thất bại!");
+      }
+    } else {
+      toast.warning("Không có gì thay đổi!");
+    }
   }
   return (
     <Box sx={{ flex: 1, padding: 3 }}>
