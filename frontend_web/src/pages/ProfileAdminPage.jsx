@@ -18,13 +18,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { create, edit, listDistrict, listManageUnit, listProvince, listWard } from '../store/features/createUserSlice';
 import { toast } from 'react-toastify';
-import { fetchUser } from '../store/features/authSlice';
 
 const ProfileAdminPage = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const { listManageUnits, listProvinces, listDistricts, listWards } = useSelector((state) => state.createUser);
-  const { user, token } = useSelector((state) => state.auth);
   
   const [selectedProvinceId, setSelectedProvinceId] = useState("");
   const [selectedDistrictId, setSelectedDistrictId] = useState("");
@@ -32,6 +30,7 @@ const ProfileAdminPage = () => {
 
   const imageInputRef = useRef(null);
   const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [existingImageUrl, setExistingImageUrl] = useState(''); // URL ảnh cũ
   
   const { editData, isEdit } = location.state || {};
@@ -45,6 +44,7 @@ const ProfileAdminPage = () => {
     userGroup: '',
     managementUnit: '',
     phone: '',
+    email:'',
     expirationDate: '',
     isUnlimited: false,
     username: '',
@@ -62,6 +62,7 @@ const ProfileAdminPage = () => {
     userGroup: '',
     managementUnit: '',
     phone: '',
+    email:'',
     expirationDate: '',
     username: '',
     password: '',
@@ -73,10 +74,6 @@ const ProfileAdminPage = () => {
     if (!listManageUnits?.length) dispatch(listManageUnit());
     if (!listProvinces?.length) dispatch(listProvince());
   }, [dispatch, listManageUnits?.length, listProvinces?.length]);
-
-  useEffect(() => {
-    if (token) dispatch(fetchUser());
-  }, [token, dispatch]);
 
   useEffect(() => {
   if (selectedDistrictId) {
@@ -114,10 +111,10 @@ const ProfileAdminPage = () => {
     });
   };
 
-  const handleFileChange = (setter) => (e) => {
-    const file = e.target.files[0];
-    if (file) setter(file);
-  };
+  // const handleFileChange = (setter) => (e) => {
+  //   const file = e.target.files[0];
+  //   if (file) setter(file);
+  // };
 
   const validateForm = () => {
     const newErrors = {};
@@ -130,6 +127,7 @@ const ProfileAdminPage = () => {
       userGroup: 'Vui lòng chọn nhóm quyền',
       managementUnit: 'Vui lòng chọn đơn vị quản lý',
       phone: 'Vui lòng điền số điện thoại',
+      email:'Vui lòng nhập email',
       expirationDate: 'Vui lòng điền thời hạn dùng phần mềm',
       username: 'Vui lòng điền tên đăng nhập',
       password: 'Vui lòng điền mật khẩu',
@@ -137,6 +135,11 @@ const ProfileAdminPage = () => {
     };
     
     Object.entries(requiredFields).forEach(([field, message]) => {
+
+      if (field === 'expirationDate' && formData.isUnlimited) {
+        return;
+      }
+
       if (!formData[field]){
         if (field === "managementUnit" && (formData.userGroup == 1 || formData.userGroup == 2)) {
           return;
@@ -144,6 +147,12 @@ const ProfileAdminPage = () => {
         newErrors[field] = message;
       }
     });
+
+    // Kiểm tra định dạng email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (formData.email && !emailRegex.test(formData.email)) {
+      newErrors.email = "Email không hợp lệ.";
+    }
 
     // Kiểm tra số điện thoại (phải có 10 hoặc 11 số)
     const phoneRegex = /^(0\d{9,10})$/;
@@ -176,14 +185,36 @@ const ProfileAdminPage = () => {
       userGroup: '',
       managementUnit: '',
       phone: '',
+      email: '',
       expirationDate: '',
       username: '',
       password: '',
       confirmPassword:'',
     });
     setImageFile('');
+    setSelectedProvinceId('');
+    setSelectedDistrictId('');
+    setSelectedWardId('');
     setExistingImageUrl('');
+    setImagePreview(null);
     setErrors({});
+  };
+
+  const handleFileChange = (setter) => (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+      setter(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImagePreview(null);
+    setImageFile(null);
+    if (imageInputRef.current) {
+      imageInputRef.current.value = '';
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -198,17 +229,20 @@ const ProfileAdminPage = () => {
     }
 
     const formDataToSend = new FormData();
-    formDataToSend.append('user_id', user?.id);
-    formDataToSend.append('waste_collection_unit_id', formData.collectionUnit);
-    formDataToSend.append('waste_type_id', formData.wasteType);
-    formDataToSend.append('volume', formData.quantity);
-    formDataToSend.append('note', formData.notes);
-    formDataToSend.append(
-      'processing_time',
-      new Date(formData.collectionDate).toLocaleDateString('fr-CA')
-    );
-    
-    if (imageFile) formDataToSend.append('image', imageFile);
+    formDataToSend.append('full_name', formData.displayName);
+    formDataToSend.append('address', formData.address);
+    formDataToSend.append('province_id', formData.province);
+    formDataToSend.append('district_id', formData.district);
+    formDataToSend.append('ward_id', formData.ward);
+    formDataToSend.append('permission_id', formData.userGroup);
+    formDataToSend.append('management_unit_id', formData.managementUnit);
+    formDataToSend.append('license_expiration', formData.isUnlimited == true ? '' : formData.expirationDate);
+    formDataToSend.append('phone_number', formData.phone);
+    formDataToSend.append('email', formData.email);
+    formDataToSend.append('username', formData.username);
+    formDataToSend.append('password', formData.password);
+   
+    if (imageFile) formDataToSend.append('avatar', imageFile);
 
     try {
       if (isEdit && editData?.id) {
@@ -396,7 +430,7 @@ const ProfileAdminPage = () => {
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="Liên hệ"
+                  label="Số điện thoại"
                   value={formData.phone}
                   onChange={(e) => setFormData({...formData, phone: e.target.value})}
                   size="small"
@@ -407,9 +441,24 @@ const ProfileAdminPage = () => {
                   </Typography>
                 )}
               </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  size="small"
+                />
+                {errors.email && (
+                  <Typography variant="caption" color="error">
+                    {errors.email}
+                  </Typography>
+                )}
+              </Grid>
               
               <Grid item xs={12}>
-                <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
+                <Typography variant="subtitle2" gutterBottom sx={{ mt: 2, mb:2 }}>
                   Thời hạn dùng phần mềm
                 </Typography>
                 <Grid container spacing={2} alignItems="center">
@@ -459,7 +508,7 @@ const ProfileAdminPage = () => {
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
-                    label="Số điện thoại/Email"
+                    label="Tên đăng nhập"
                     value={formData.username}
                     onChange={(e) => setFormData({...formData, username: e.target.value})}
                     // disabled
@@ -518,20 +567,37 @@ const ProfileAdminPage = () => {
 
         {/* Right side - Avatar */}
         <Grid item xs={12} md={4}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', 'mt':6 }}>
             <Avatar
-              sx={{ width: 150, height: 150, mb: 2 }}
+              src={imagePreview || '/path/to/default-avatar.jpg'}
+              sx={{ width: 260, height: 260, mb: 2 }}
             />
-            <IconButton color="primary" aria-label="upload picture" component="label" >
-              <input 
-                  hidden 
-                  accept="image/*" 
+            <Box>
+              <IconButton
+                color="primary"
+                aria-label="upload picture"
+                component="label"
+              >
+                <input
+                  hidden
+                  accept="image/*"
                   type="file"
                   ref={imageInputRef}
                   onChange={handleFileChange(setImageFile)}
-              />
-              <PhotoCamera />
-            </IconButton>
+                />
+                <PhotoCamera />
+              </IconButton>
+              {imagePreview && (
+                <IconButton
+                  color="secondary"
+                  aria-label="remove picture"
+                  onClick={handleRemoveImage}
+                  sx={{ ml: 1 }}
+                >
+                  ✕
+                </IconButton>
+              )}
+            </Box>
           </Box>
         </Grid>
       </Grid>

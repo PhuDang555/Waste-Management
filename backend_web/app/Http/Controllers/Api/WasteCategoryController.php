@@ -10,7 +10,7 @@ use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
-class CreateUserController extends Controller
+class WasteCategoryController extends Controller
 {
     use ApiResponse;
 

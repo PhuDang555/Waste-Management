@@ -23,7 +23,10 @@ class CreateUserRepository implements CreateUserRepositoryInterface
 
     public function listUser()
     {
-        $data = User::where('permission_id', AccountType::QUAN_LY)->orWhere('permission_id', AccountType::VAN_HANH)->get();
+        $data = User::where('permission_id', AccountType::QUAN_LY)
+        ->orWhere('permission_id', AccountType::VAN_HANH)
+        ->select('id','full_name','username','address','phone_number','permission_id')
+        ->get();
 
         return $data;
     }

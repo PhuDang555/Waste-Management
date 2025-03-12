@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CreateUserController;
 use App\Http\Controllers\Api\DataInputController;
 use App\Http\Controllers\Api\FeaturePermissionController;
+use App\Http\Controllers\Api\WasteCategoryController;
 
 Route::prefix('/v1/auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
@@ -46,5 +47,24 @@ Route::prefix('/v1')->group(function () {
         Route::post('edit-user', [CreateUserController::class, 'edit']);
         Route::post('delete-user', [CreateUserController::class, 'delete']);
         Route::post('block-user', [CreateUserController::class, 'block']);
+    });
+
+    Route::prefix('category')->group(function () {
+
+        Route::get('waste-group', [WasteCategoryController::class, 'listWasteGroup']);
+        Route::get('waste-type', [WasteCategoryController::class, 'listWasteType']);
+        Route::get('waste-detail', [WasteCategoryController::class, 'listWasteDetail']);
+
+        Route::post('create-waste-group', [WasteCategoryController::class, 'createWasteGroup']);
+        Route::post('create-waste-type', [WasteCategoryController::class, 'createWasteType']);
+        Route::post('create-waste-detail', [WasteCategoryController::class, 'createWasteDetail']);
+
+        Route::patch('patch-waste-group/{id}', [WasteCategoryController::class, 'editWasteGroup']);
+        Route::patch('patch-waste-type/{id}', [WasteCategoryController::class, 'editWasteType']);
+        Route::patch('patch-waste-type/{id}', [WasteCategoryController::class, 'editWasteDetail']);
+
+        Route::delete('delete-waste-group/{id}', [WasteCategoryController::class, 'deleteWasteGroup']);
+        Route::delete('delete-waste-type/{id}', [WasteCategoryController::class, 'deleteWasteType']);
+        Route::delete('delete-waste-type/{id}', [WasteCategoryController::class, 'deleteWasteDetail']);
     });
 })->middleware('auth:api');

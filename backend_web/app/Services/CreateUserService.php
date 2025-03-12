@@ -43,11 +43,21 @@ class CreateUserService
 
     public function create(array $data)
     {
+        if (isset($data['avatar'])) {
+            $imagePath = $data['avatar']->store('images', 'public');
+            $data['avatar'] = $imagePath;
+        }
+
         return $this->createUserRepository->create($data);
     }
 
     public function edit(array $data, int $id)
     {
+        if (isset($data['avatar'])) {
+            $imagePath = $data['avatar']->store('images', 'public');
+            $data['avatar'] = $imagePath;
+        }
+
         return $this->createUserRepository->edit($data, $id);
     }
 
