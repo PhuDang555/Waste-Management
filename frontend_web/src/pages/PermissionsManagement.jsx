@@ -77,7 +77,7 @@ const PermissionsManagement = () => {
     }
   }
   return (
-    <Box sx={{ flex: 1, padding: 3 }}>
+    <Box sx={{ flex: 1, padding: 3, width: '100%' }}>
       <Grid container spacing={3}>
           <Grid item xs={12} md={10}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>

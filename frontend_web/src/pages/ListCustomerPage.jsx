@@ -27,14 +27,14 @@ const ListCustomerPage = () => {
  
   const columns = [
     // { field: 'id', headerName: 'ID', width: 70 },
-    { field: 'full_name', headerName: 'TÊN TÀI KHOẢN', width: 300 },
-    { field: 'username', headerName: 'MÃ TÀI KHOẢN', width: 300 },
-    { field: 'address', headerName: 'ĐỊA CHỈ', width: 400 },
-    { field: 'phone_number', headerName: 'SỐ ĐIỆN THOẠI',sortable: false, width: 200 },
+    { field: 'full_name', headerName: 'TÊN TÀI KHOẢN', flex: 1 },
+    { field: 'username', headerName: 'MÃ TÀI KHOẢN', flex: 1 },
+    { field: 'address', headerName: 'ĐỊA CHỈ', flex: 1 },
+    { field: 'phone_number', headerName: 'SỐ ĐIỆN THOẠI',sortable: false, flex: 1 },
     { field: 'permission_id', 
       headerName: 'NHÓM QUYỀN',
       sortable: false, 
-      width: 200,
+      flex: 1,
       renderCell: (params) => {
         return (
           <Typography 

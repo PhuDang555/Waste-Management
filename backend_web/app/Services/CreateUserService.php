@@ -41,14 +41,9 @@ class CreateUserService
         return $this->createUserRepository->findById($id);
     }
 
-    public function create(array $data)
+    public function createWasteGroup(array $data)
     {
-        if (isset($data['avatar'])) {
-            $imagePath = $data['avatar']->store('images', 'public');
-            $data['avatar'] = $imagePath;
-        }
-
-        return $this->createUserRepository->create($data);
+        return $this->createUserRepository->createWasteGroup($data);
     }
 
     public function edit(array $data, int $id)

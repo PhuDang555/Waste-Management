@@ -21,7 +21,7 @@ const FunctionAdminPage = () => {
     <Box
       sx={{
         width: '100%',
-        minHeight: '94vh',
+        minHeight: '100vh',
         backgroundColor: '#FFF5E6',
         padding: 3,
         borderRadius: 4,

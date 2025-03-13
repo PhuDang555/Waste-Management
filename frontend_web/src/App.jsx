@@ -16,7 +16,10 @@ function App() {
     a: {
       color: "unset",
       textDecoration: "none"
-    }
+    },
+    body: {
+      padding: 0,
+    },
   };
 
   return (

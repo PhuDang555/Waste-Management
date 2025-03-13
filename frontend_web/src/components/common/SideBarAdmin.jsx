@@ -25,7 +25,7 @@ const SideBarAdmin = () => {
   return (
     <Box 
         sx={{ 
-            width: 300, 
+            // width: 300, 
             bgcolor: '#FFF5E6', 
             padding: 2, 
             borderRight: '2px solid #4FC3F7', 
@@ -34,6 +34,7 @@ const SideBarAdmin = () => {
             height:'100vh',
             overflowY: 'auto'
             }}
+        fullWidth
     >
         <Typography 
         variant="h6" 
@@ -72,7 +73,7 @@ const SideBarAdmin = () => {
                     <Typography 
                         sx={{ 
                         color: '#4FC3F7', 
-                        fontWeight: item.id === 1 ? 'bold' : 'normal'
+                        // fontWeight: item.id === 1 ? 'bold' : 'normal'
                         }}
                     >
                         {item.title}

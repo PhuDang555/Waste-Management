@@ -3,6 +3,7 @@ import authReducer from "./features/authSlice";
 import dataInputReducer from "./features/dataInputSlice";
 import featurePermissionReducer from "./features/featurePermissionSlice";
 import createUserReducer from "./features/createUserSlice";
+import wasteCategoryReducer from "./features/wasteCategorySlice";
 
 export const store = configureStore({
     reducer:{
@@ -10,5 +11,6 @@ export const store = configureStore({
         dataInput: dataInputReducer,
         featurePermission: featurePermissionReducer,
         createUser: createUserReducer,
+        wasteCategory: wasteCategoryReducer,
     },
 })

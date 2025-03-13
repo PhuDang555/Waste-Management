@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Box, 
   Typography, 
@@ -23,10 +23,12 @@ import {
   Tab,
   Alert
 } from '@mui/material';
-import { Add, Delete, Edit, Save } from '@mui/icons-material';
+import { Add, Delete, Edit} from '@mui/icons-material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { useDispatch, useSelector } from 'react-redux';
+import { createWasteGroup, listWasteGroup } from '../store/features/wasteCategorySlice';
+import { toast } from 'react-toastify';
 
-// Custom theme with Vietnamese-friendly colors
 const theme = createTheme({
   palette: {
     primary: {
@@ -48,6 +50,8 @@ const theme = createTheme({
 });
 
 const WastCategoriesPage = () => {
+  const dispatch = useDispatch();
+  const {listWasteGroups, loading, error } = useSelector(state => state.wasteCategory);
   // State management
   const [tabValue, setTabValue] = useState(0);
   const [wasteGroups, setWasteGroups] = useState([
@@ -75,25 +79,50 @@ const WastCategoriesPage = () => {
   ]);
   
   const [newGroupName, setNewGroupName] = useState('');
+  const [inputError, setInputError] = useState('')
   const [newTypeName, setNewTypeName] = useState('');
   const [newDetailName, setNewDetailName] = useState('');
   const [selectedGroup, setSelectedGroup] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [editMode, setEditMode] = useState(null);
 
+  useEffect(()=>{
+    if(!listWasteGroups?.length) dispatch(listWasteGroup())
+  },[dispatch, listWasteGroups?.length])
   // Handle tab change
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
 
   // Add new waste group
-  const handleAddGroup = () => {
-    if (newGroupName.trim()) {
-      setWasteGroups([
-        ...wasteGroups,
-        { id: wasteGroups.length + 1, name: newGroupName, types: [] }
-      ]);
+  const handleAddGroup = async () => {
+    setInputError('');
+
+    if(!newGroupName.trim()){
+      setInputError('Vui lòng nhập tên nhóm rác.');
+      return;
+    }
+
+    const duplicate = wasteGroups.some(
+      group => group.name.trim().toLowerCase() === newGroupName.trim().toLowerCase()
+    )
+
+    if(duplicate){
+      setInputError('Tên nhóm rác đã tồn tại');
+      return;
+    }
+
+    const groupData = {
+      waste_group_name: newGroupName.trim().toUpperCase(),
+    };
+
+    try {
+      await dispatch(createWasteGroup(groupData));
       setNewGroupName('');
+      toast.success('Thêm nhóm rác thành công.');
+    } catch (error) {
+      console.log(error);
+      toast.error('Có lỗi xảy ra khi thêm nhóm rác.')
     }
   };
 
@@ -210,15 +239,22 @@ const WastCategoriesPage = () => {
           {/* Add Group Tab */}
           {tabValue === 0 && (
             <Box sx={{ p: 2 }}>
-              <Grid container spacing={2} alignItems="center">
+              <Grid container spacing={2} >
                 <Grid item xs={12} md={6}>
                   <TextField
                     fullWidth
                     label="TÊN NHÓM"
                     variant="outlined"
                     value={newGroupName}
-                    onChange={(e) => setNewGroupName(e.target.value)}
+                    onChange={(e) => { 
+                      setNewGroupName(e.target.value);
+                      setInputError('');
+                    }}
+                    loading={loading}
+                    error={!!inputError}
+                    helperText={inputError}
                   />
+
                 </Grid>
                 <Grid item xs={12} md={6}>
                   <Button 
@@ -247,9 +283,9 @@ const WastCategoriesPage = () => {
                       label="TÊN NHÓM"
                       onChange={(e) => setSelectedGroup(e.target.value)}
                     >
-                      {wasteGroups.map((group) => (
-                        <MenuItem key={group.id} value={group.name}>
-                          {group.name}
+                      {listWasteGroups.map((group) => (
+                        <MenuItem key={group.id} value={group.waste_group_name}>
+                          {group.waste_group_name}
                         </MenuItem>
                       ))}
                     </Select>
@@ -352,7 +388,7 @@ const WastCategoriesPage = () => {
         
         <Grid container spacing={3}>
           {wasteGroups.map((group) => (
-            <Grid item xs={12} md={3} key={group.id}>
+            <Grid item xs={12} md={3} lg={4} key={group.id}>
               <Card elevation={3} sx={{ height: '100%' }}>
                 <CardContent>
                   <Box sx={{ 
@@ -364,7 +400,7 @@ const WastCategoriesPage = () => {
                     justifyContent: 'space-between',
                     alignItems: 'center'
                   }}>
-                    <Typography variant="h7" color="white">
+                    <Typography variant="h7" color="white" >
                       {group.name}
                     </Typography>
                     <Box>

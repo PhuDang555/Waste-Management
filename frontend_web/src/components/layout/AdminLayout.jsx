@@ -7,8 +7,8 @@ const AdminLayout = () => {
     component="main"
     sx={{
         flexGrow: 1,
-        p: 3,
-        height: "100vh",
+        // p: 3,
+        maxHeight: "100vh",
     }}
     >
     <Outlet />
