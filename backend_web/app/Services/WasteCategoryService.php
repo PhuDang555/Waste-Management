@@ -33,11 +33,11 @@ class WasteCategoryService
     }
     public function createWasteType(array $data)
     {
-        return $this->wasteCategoryRepository->createWasteGroup($data);
+        return $this->wasteCategoryRepository->createWasteType($data);
     }
     public function createWasteDetail(array $data)
     {
-        return $this->wasteCategoryRepository->createWasteGroup($data);
+        return $this->wasteCategoryRepository->createWasteDetail($data);
     }
 
     public function editWasteGroup(array $data, int $id)

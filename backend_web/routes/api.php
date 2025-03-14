@@ -65,6 +65,6 @@ Route::prefix('/v1')->group(function () {
 
         Route::delete('delete-waste-group/{id}', [WasteCategoryController::class, 'deleteWasteGroup']);
         Route::delete('delete-waste-type/{id}', [WasteCategoryController::class, 'deleteWasteType']);
-        Route::delete('delete-waste-type/{id}', [WasteCategoryController::class, 'deleteWasteDetail']);
+        Route::delete('delete-waste-detail/{id}', [WasteCategoryController::class, 'deleteWasteDetail']);
     });
 })->middleware('auth:api');

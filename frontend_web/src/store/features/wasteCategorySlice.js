@@ -19,86 +19,48 @@ export const listWasteGroup = createAsyncThunk(
   }
 );
 
-export const listUser = createAsyncThunk(
-  'wasteCaterogy/listUser',
-  async (_, { rejectWithValue }) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://127.0.0.1:8000/api/v1/category/list-user', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      console.log(response.data.data);
-      return response.data.data;
-    } catch (error) {
-      return rejectWithValue(error.response.data);
-    }
-  }
-);
-
-export const listProvince = createAsyncThunk(
-  'wasteCaterogy/listProvince',
-  async (_, { rejectWithValue }) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://127.0.0.1:8000/api/v1/category/list-province', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      
-      return response.data.data;
-    } catch (error) {
-      return rejectWithValue(error.response.data);
-    }
-  }
-);
-
-export const listDistrict = createAsyncThunk(
-  'wasteCaterogy/listDistrict',
-  async (id, { rejectWithValue }) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://127.0.0.1:8000/api/v1/category/list-district', {
-        params:{ id },
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      
-      return response.data.data;
-    } catch (error) {
-      return rejectWithValue(error.response.data);
-    }
-  }
-);
-
-export const listWard = createAsyncThunk(
-  'wasteCaterogy/listWard',
-  async (id, { rejectWithValue }) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://127.0.0.1:8000/api/v1/category/list-ward', {
-        params:{ id },
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      
-      return response.data.data;
-    } catch (error) {
-      return rejectWithValue(error.response.data);
-    }
-  }
-);
-
 export const createWasteGroup = createAsyncThunk(
   'wasteCaterogy/createWasteGroup',
   async (data, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post('http://127.0.0.1:8000/api/v1/category/create-waste-group',data,{
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const createWasteType = createAsyncThunk(
+  'wasteCaterogy/createWasteType',
+  async (data, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post('http://127.0.0.1:8000/api/v1/category/create-waste-type',data,{
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const createWasteDetail = createAsyncThunk(
+  'wasteCaterogy/createWasteDetail',
+  async (data, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post('http://127.0.0.1:8000/api/v1/category/create-waste-detail',data,{
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -129,8 +91,27 @@ export const edit = createAsyncThunk(
   }
 );
 
-export const deleted = createAsyncThunk(
-  'wasteCaterogy/delete',
+export const deletedGroup = createAsyncThunk(
+  'wasteCaterogy/deleteGroup',
+  async (id, { rejectWithValue }) => {
+    try {
+      
+      const token = localStorage.getItem('token');
+      const response = await axios.delete(`http://127.0.0.1:8000/api/v1/category/delete-waste-group/${id}`,{
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const deletedType = createAsyncThunk(
+  'wasteCaterogy/deleteType',
   async (data, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
@@ -147,12 +128,12 @@ export const deleted = createAsyncThunk(
   }
 );
 
-export const block = createAsyncThunk(
-  'wasteCaterogy/block',
+export const deletedDetail = createAsyncThunk(
+  'wasteCaterogy/deleteDetail',
   async (data, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post('http://127.0.0.1:8000/api/v1/category/block-user',data,{
+      const response = await axios.post('http://127.0.0.1:8000/api/v1/category/delete-user',data,{
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -165,15 +146,10 @@ export const block = createAsyncThunk(
   }
 );
 
-
 const wasteCategorySlice = createSlice({
     name: 'wasteCaterogy',
     initialState: {
       listWasteGroups: [],
-      listUsers:[],
-      listProvinces:[],
-      listDistricts:[],
-      listWards:[],
       loading: false,
       error: null,
     },
@@ -192,58 +168,6 @@ const wasteCategorySlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // Xử lý danh sách user 
-      .addCase(listUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(listUser.fulfilled, (state, action) => {
-        state.loading = false;
-        state.listUsers = action.payload; // Lưu trữ danh sách user
-      })
-      .addCase(listUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      // Xử lý danh sách tỉnh/tp 
-      .addCase(listProvince.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(listProvince.fulfilled, (state, action) => {
-        state.loading = false;
-        state.listProvinces = action.payload; // Lưu trữ danh sách tỉnh/tp
-      })
-      .addCase(listProvince.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      // Xử lý danh sách quận/huyện 
-      .addCase(listDistrict.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(listDistrict.fulfilled, (state, action) => {
-        state.loading = false;
-        state.listDistricts = action.payload; // Lưu trữ danh sách quận/huyện
-      })
-      .addCase(listDistrict.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      // Xử lý danh sách phường/xã 
-      .addCase(listWard.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(listWard.fulfilled, (state, action) => {
-        state.loading = false;
-        state.listWards = action.payload; // Lưu trữ danh sách phường/xã
-      })
-      .addCase(listWard.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
       // Xử lý create waste group
       .addCase(createWasteGroup.pending, (state) => {
         state.loading = true;
@@ -254,6 +178,46 @@ const wasteCategorySlice = createSlice({
         state.data = action.payload;
       })
       .addCase(createWasteGroup.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Xử lý create waste type
+      .addCase(createWasteType.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createWasteType.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload;
+      })
+      .addCase(createWasteType.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Xử lý create waste type
+      .addCase(createWasteDetail.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createWasteDetail.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload;
+      })
+      .addCase(createWasteDetail.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Xử lý delete waste type
+      .addCase(deletedGroup.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deletedGroup.fulfilled, (state, action) => {
+        state.loading = false;
+        const { id } = action.payload;
+        state.listWasteGroups = state.listWasteGroups.filter((item) => item.id !== id);
+      })
+      .addCase(deletedGroup.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

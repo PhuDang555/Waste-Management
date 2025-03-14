@@ -17,6 +17,11 @@ class WasteType extends Model
 
     public  function wasteGroup()
     {
-        return $this->belongsTo(WasteGroup::class, 'waste_group_id', 'id');
+        return $this->belongsTo(WasteGroup::class, 'waste_group_id');
+    }
+
+    public function wasteDetail()
+    {
+        return $this->hasMany(WasteDetail::class, 'waste_type_id');
     }
 }

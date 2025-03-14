@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\WasteCategoryService;
 use Illuminate\Http\Request;
 use App\Traits\ApiResponse;
+use Illuminate\Support\Facades\Log;
 
 class WasteCategoryController extends Controller
 {
@@ -35,6 +36,45 @@ class WasteCategoryController extends Controller
         try {
 
             $data = $this->wasteCategoryService->createWasteGroup($request->all());
+
+            return $this->successResponse($data, 'Tạo thành công',201);
+
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 401);
+        }
+    }
+
+    public function createWasteType(Request $request)
+    {
+        try {
+
+            $data = $this->wasteCategoryService->createWasteType($request->all());
+
+            return $this->successResponse($data, 'Tạo thành công',201);
+
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 401);
+        }
+    }
+
+    public function createWasteDetail(Request $request)
+    {
+        try {
+
+            $data = $this->wasteCategoryService->createWasteDetail($request->all());
+
+            return $this->successResponse($data, 'Tạo thành công',201);
+
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 401);
+        }
+    }
+
+    public function deleteWasteGroup(int $id)
+    {
+        try {
+
+            $data = $this->wasteCategoryService->deleteWasteGroup($id);
 
             return $this->successResponse($data, 'Tạo thành công',201);
 

@@ -16,7 +16,20 @@ class WasteCategoryRepository implements WasteCategoryRepositoryInterface
 {
     public function listWasteGroup()
     {
-        $data = WasteGroup::all();
+        // $data = WasteGroup::with(['wasteType.wasteDetail'])->get();
+        $data = WasteGroup::select('id', 'waste_group_name','description')
+        ->with([
+            'wasteType' => function ($query) {
+                $query->select('id', 'waste_type_name', 'waste_group_id')
+                    ->with([
+                        'wasteDetail' => function ($query) {
+                            $query->select('id', 'waste_detail_name', 'waste_type_id');
+                        }
+                    ]);
+            }
+        ])
+        ->get();
+
         return $data;
     }
     public function listWasteType(int $wasteGroupId)

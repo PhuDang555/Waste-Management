@@ -21,12 +21,14 @@ import {
   Chip,
   Tabs,
   Tab,
-  Alert
+  Alert,
+  FormHelperText,
+  CircularProgress
 } from '@mui/material';
 import { Add, Delete, Edit} from '@mui/icons-material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
-import { createWasteGroup, listWasteGroup } from '../store/features/wasteCategorySlice';
+import { createWasteDetail, createWasteGroup, createWasteType, deletedDetail, deletedGroup, deletedType, listWasteGroup } from '../store/features/wasteCategorySlice';
 import { toast } from 'react-toastify';
 
 const theme = createTheme({
@@ -51,45 +53,24 @@ const theme = createTheme({
 
 const WastCategoriesPage = () => {
   const dispatch = useDispatch();
-  const {listWasteGroups, loading, error } = useSelector(state => state.wasteCategory);
-  // State management
-  const [tabValue, setTabValue] = useState(0);
-  const [wasteGroups, setWasteGroups] = useState([
-    { 
-      id: 1, 
-      name: 'RÁC TÁI CHẾ',
-      types: [
-        { id: 1, name: 'Giấy', details: [] },
-        { 
-          id: 2, 
-          name: 'Nhựa', 
-          details: [
-            { id: 1, name: 'PET' },
-            { id: 2, name: 'PP' },
-            { id: 3, name: 'HDPE' },
-            { id: 4, name: 'Bao bì mềm' },
-          ] 
-        },
-        { id: 3, name: 'Kim loại', details: [] },
-      ]
-    },
-    { id: 2, name: 'NHÓM RÁC THỰC PHẨM', types: [] },
-    { id: 3, name: 'NHÓM RÁC KHÁC', types: [] },
-    { id: 4, name: 'NHÓM RÁC KHÁC NỮA', types: [] },
-  ]);
+  const {listWasteGroups, loading } = useSelector(state => state.wasteCategory);
   
+  const [tabValue, setTabValue] = useState(0);
   const [newGroupName, setNewGroupName] = useState('');
-  const [inputError, setInputError] = useState('')
   const [newTypeName, setNewTypeName] = useState('');
   const [newDetailName, setNewDetailName] = useState('');
+  const [inputError, setInputError] = useState('')
+  const [inputTypeError, setInputTypeError] = useState('')
+  const [inputDetailError, setInputDetailError] = useState('')
   const [selectedGroup, setSelectedGroup] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [editMode, setEditMode] = useState(null);
 
   useEffect(()=>{
     if(!listWasteGroups?.length) dispatch(listWasteGroup())
-  },[dispatch, listWasteGroups?.length])
-  // Handle tab change
+  },[dispatch, loading, listWasteGroups?.length])
+  
+
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
@@ -102,9 +83,9 @@ const WastCategoriesPage = () => {
       setInputError('Vui lòng nhập tên nhóm rác.');
       return;
     }
-
-    const duplicate = wasteGroups.some(
-      group => group.name.trim().toLowerCase() === newGroupName.trim().toLowerCase()
+    
+    const duplicate = listWasteGroups.some(
+      group => group.waste_group_name.trim().toLowerCase() === newGroupName.trim().toLowerCase()
     )
 
     if(duplicate){
@@ -120,6 +101,8 @@ const WastCategoriesPage = () => {
       await dispatch(createWasteGroup(groupData));
       setNewGroupName('');
       toast.success('Thêm nhóm rác thành công.');
+
+      dispatch(listWasteGroup());
     } catch (error) {
       console.log(error);
       toast.error('Có lỗi xảy ra khi thêm nhóm rác.')
@@ -127,92 +110,173 @@ const WastCategoriesPage = () => {
   };
 
   // Add new waste type
-  const handleAddType = () => {
-    if (newTypeName.trim() && selectedGroup) {
-      const updatedGroups = wasteGroups.map(group => {
-        if (group.name === selectedGroup) {
-          return {
-            ...group,
-            types: [...group.types, { id: group.types.length + 1, name: newTypeName, details: [] }]
-          };
-        }
-        return group;
-      });
-      setWasteGroups(updatedGroups);
+  const handleAddType = async () => {
+    
+    setInputTypeError('');
+
+    if (!selectedGroup) {
+      setInputTypeError('Vui lòng chọn nhóm rác');
+      return;
+    }
+    
+    if (!newTypeName || newTypeName.trim() === '') {
+      setInputTypeError('Vui lòng nhập tên loại rác');
+      return;
+    }
+    
+    const selectedGroupObject = listWasteGroups.find(
+      group => group.waste_group_name === selectedGroup
+    );
+    
+    if (!selectedGroupObject) {
+      setInputTypeError('Không tìm thấy nhóm rác đã chọn');
+      return;
+    }
+    
+    const waste_types = selectedGroupObject.waste_type || [];
+    
+    const duplicate = waste_types.some(
+      type => type.waste_type_name.trim().toLowerCase() === newTypeName.trim().toLowerCase()
+    );
+    
+    if (duplicate) {
+      setInputTypeError('Tên loại rác đã tồn tại trong nhóm này');
+      return;
+    }
+    
+    const typeData = {
+      waste_group_id: selectedGroupObject.id,
+      waste_type_name: newTypeName.trim().toUpperCase(),
+    };
+    
+    try {
+      await dispatch(createWasteType(typeData));
+      
       setNewTypeName('');
+      setSelectedGroup('');
+      toast.success('Thêm loại rác thành công');
+
+      dispatch(listWasteGroup());
+      
+    } catch (error) {
+      console.log(error);
+      toast.error('Có lỗi xảy ra khi thêm loại rác');
     }
   };
 
   // Add new detail
-  const handleAddDetail = () => {
-    if (newDetailName.trim() && selectedGroup && selectedType) {
-      const updatedGroups = wasteGroups.map(group => {
-        if (group.name === selectedGroup) {
-          return {
-            ...group,
-            types: group.types.map(type => {
-              if (type.name === selectedType) {
-                return {
-                  ...type,
-                  details: [...type.details, { id: type.details.length + 1, name: newDetailName }]
-                };
-              }
-              return type;
-            })
-          };
-        }
-        return group;
-      });
-      setWasteGroups(updatedGroups);
+  const handleAddDetail = async () => {
+    setInputDetailError('');
+
+    if (!selectedGroup) {
+      setInputDetailError('Vui lòng chọn nhóm rác');
+      return;
+    }
+
+    if (!selectedType) {
+      setInputDetailError('Vui lòng chọn loại rác');
+      return;
+    }
+    
+    if (!newDetailName || newDetailName.trim() === '') {
+      setInputDetailError('Vui lòng nhập chi tiết loại rác');
+      return;
+    }
+    
+    const selectedGroupObject = listWasteGroups.find(
+      group => group.waste_group_name === selectedGroup
+    );
+    
+    if (!selectedGroupObject) {
+      setInputDetailError('Không tìm thấy nhóm rác đã chọn');
+      return;
+    }
+    
+    const waste_type = selectedGroupObject.waste_type || [];
+    
+    const selectedTypeObject = waste_type.find(
+      type => type.waste_type_name === selectedType
+    );
+    
+    if (!selectedTypeObject) {
+      setInputDetailError('Không tìm thấy loại rác đã chọn');
+      return;
+    }
+
+    const waste_detail = selectedTypeObject.waste_detail || [];
+    
+    const duplicate = waste_detail.some(
+      type => type.waste_detail_name.trim().toLowerCase() === newDetailName.trim().toLowerCase()
+    );
+    
+    if (duplicate) {
+      setInputDetailError('Tên loại rác đã tồn tại trong nhóm này');
+      return;
+    }
+    
+    const typeData = {
+      waste_group_id: selectedGroupObject.id,
+      waste_type_id: selectedTypeObject.id,
+      waste_detail_name: newDetailName.trim().toUpperCase(),
+    };
+    
+    try {
+      await dispatch(createWasteDetail(typeData));
+      
       setNewDetailName('');
+      setSelectedGroup('');
+      setSelectedType('');
+      toast.success('Thêm loại rác thành công');
+
+      dispatch(listWasteGroup());
+      
+    } catch (error) {
+      console.log(error);
+      toast.error('Có lỗi xảy ra khi thêm loại rác');
     }
   };
 
   // Delete item
-  const handleDelete = (groupId, typeId = null, detailId = null) => {
-    let updatedGroups = [...wasteGroups];
-    
+  const handleDelete = async (groupId, typeId = null, detailId = null) => {
+  
     if (detailId !== null) {
-      // Delete detail
-      updatedGroups = updatedGroups.map(group => {
-        if (group.id === groupId) {
-          return {
-            ...group,
-            types: group.types.map(type => {
-              if (type.id === typeId) {
-                return {
-                  ...type,
-                  details: type.details.filter(detail => detail.id !== detailId)
-                };
-              }
-              return type;
-            })
-          };
-        }
-        return group;
-      });
+      try {
+        await dispatch(deletedDetail(detailId));
+        toast.success('Xóa chi tiết loại rác thành công');
+  
+        dispatch(listWasteGroup());
+        
+      } catch (error) {
+        console.log(error);
+        toast.error('Có lỗi xảy ra khi xóa chi tiết loại rác');
+      }
     } else if (typeId !== null) {
-      // Delete type
-      updatedGroups = updatedGroups.map(group => {
-        if (group.id === groupId) {
-          return {
-            ...group,
-            types: group.types.filter(type => type.id !== typeId)
-          };
-        }
-        return group;
-      });
+      try {
+        await dispatch(deletedType(typeId));
+        toast.success('Xóa loại rác thành công');
+  
+        dispatch(listWasteGroup());
+        
+      } catch (error) {
+        console.log(error);
+        toast.error('Có lỗi xảy ra khi xóa loại rác');
+      }
     } else {
-      // Delete group
-      updatedGroups = updatedGroups.filter(group => group.id !== groupId);
+      try {
+        await dispatch(deletedGroup(groupId));
+        toast.success('Xóa nhóm rác thành công');
+  
+        dispatch(listWasteGroup());
+        
+      } catch (error) {
+        console.log(error);
+        toast.error('Có lỗi xảy ra khi xóa nhóm rác');
+      }
     }
     
-    setWasteGroups(updatedGroups);
   };
 
-  // Edit item (placeholder for edit functionality)
   const handleEdit = (groupId, typeId = null, detailId = null) => {
-    // Set edit mode identifier
     setEditMode({ groupId, typeId, detailId });
   };
 
@@ -274,14 +338,17 @@ const WastCategoriesPage = () => {
           {/* Add Type Tab */}
           {tabValue === 1 && (
             <Box sx={{ p: 2 }}>
-              <Grid container spacing={2} alignItems="center">
+              <Grid container spacing={2} >
                 <Grid item xs={12} md={4}>
-                  <FormControl fullWidth>
+                  <FormControl fullWidth error={!!inputTypeError && !selectedGroup}>
                     <InputLabel>TÊN NHÓM</InputLabel>
                     <Select
                       value={selectedGroup}
                       label="TÊN NHÓM"
-                      onChange={(e) => setSelectedGroup(e.target.value)}
+                      onChange={(e) => {
+                        setSelectedGroup(e.target.value);
+                        setInputTypeError('');
+                        }}
                     >
                       {listWasteGroups.map((group) => (
                         <MenuItem key={group.id} value={group.waste_group_name}>
@@ -289,6 +356,9 @@ const WastCategoriesPage = () => {
                         </MenuItem>
                       ))}
                     </Select>
+                    {!selectedGroup && !!inputTypeError && (
+                      <FormHelperText>{inputTypeError}</FormHelperText>
+                    )}
                   </FormControl>
                 </Grid>
                 <Grid item xs={12} md={4}>
@@ -297,7 +367,12 @@ const WastCategoriesPage = () => {
                     label="TÊN LOẠI"
                     variant="outlined"
                     value={newTypeName}
-                    onChange={(e) => setNewTypeName(e.target.value)}
+                    onChange={(e) => {
+                      setNewTypeName(e.target.value);
+                      setInputError('');
+                    }}
+                    error={!!inputTypeError && selectedGroup}
+                    helperText={selectedGroup && inputTypeError ? inputTypeError : ''}
                   />
                 </Grid>
                 <Grid item xs={12} md={4}>
@@ -305,9 +380,9 @@ const WastCategoriesPage = () => {
                     variant="contained" 
                     color="secondary" 
                     onClick={handleAddType}
-                    startIcon={<Add />}
+                    startIcon={loading ? <CircularProgress size={24} /> : <Add />}
                     sx={{ height: '56px' }}
-                    disabled={!selectedGroup}
+                    disabled={!selectedGroup || loading}
                   >
                     LƯU LẠI
                   </Button>
@@ -319,40 +394,52 @@ const WastCategoriesPage = () => {
           {/* Add Detail Tab */}
           {tabValue === 2 && (
             <Box sx={{ p: 2 }}>
-              <Grid container spacing={2} alignItems="center">
+              <Grid container spacing={2} >
                 <Grid item xs={12} md={3}>
-                  <FormControl fullWidth>
+                  <FormControl fullWidth error={!!inputDetailError && !selectedGroup}>
                     <InputLabel>TÊN NHÓM</InputLabel>
                     <Select
                       value={selectedGroup}
                       label="TÊN NHÓM"
-                      onChange={(e) => setSelectedGroup(e.target.value)}
+                      onChange={(e) => {
+                        setSelectedGroup(e.target.value);
+                        setInputTypeError('');
+                        }}
                     >
-                      {wasteGroups.map((group) => (
-                        <MenuItem key={group.id} value={group.name}>
-                          {group.name}
+                      {listWasteGroups.map((group) => (
+                        <MenuItem key={group.id} value={group.waste_group_name}>
+                          {group.waste_group_name}
                         </MenuItem>
                       ))}
                     </Select>
+                    {!selectedGroup && !!inputDetailError && (
+                      <FormHelperText>{inputDetailError}</FormHelperText>
+                    )}
                   </FormControl>
                 </Grid>
                 <Grid item xs={12} md={3}>
-                  <FormControl fullWidth>
+                  <FormControl fullWidth error={!!inputDetailError && !selectedGroup && !selectedType}>
                     <InputLabel>TÊN LOẠI</InputLabel>
                     <Select
                       value={selectedType}
                       label="TÊN LOẠI"
-                      onChange={(e) => setSelectedType(e.target.value)}
+                      onChange={(e) => {
+                        setSelectedType(e.target.value);
+                        setInputTypeError('');
+                      }}
                       disabled={!selectedGroup}
                     >
-                      {wasteGroups
-                        .find(group => group.name === selectedGroup)?.types
+                      {listWasteGroups
+                        .find(group => group.waste_group_name === selectedGroup)?.waste_type
                         .map((type) => (
-                          <MenuItem key={type.id} value={type.name}>
-                            {type.name}
+                          <MenuItem key={type.id} value={type.waste_type_name}>
+                            {type.waste_type_name}
                           </MenuItem>
                         )) || []}
                     </Select>
+                    {!selectedType && !!inputDetailError && (
+                      <FormHelperText>{inputDetailError}</FormHelperText>
+                    )}
                   </FormControl>
                 </Grid>
                 <Grid item xs={12} md={3}>
@@ -361,8 +448,12 @@ const WastCategoriesPage = () => {
                     label="CHI TIẾT"
                     variant="outlined"
                     value={newDetailName}
-                    onChange={(e) => setNewDetailName(e.target.value)}
-                    disabled={!selectedType}
+                    onChange={(e) => {
+                      setNewDetailName(e.target.value);
+                      setInputDetailError('');
+                    }}
+                    error={!!inputDetailError && selectedGroup && selectedType}
+                    helperText={selectedGroup && selectedType && inputDetailError ? inputDetailError : ''}
                   />
                 </Grid>
                 <Grid item xs={12} md={3}>
@@ -370,9 +461,9 @@ const WastCategoriesPage = () => {
                     variant="contained" 
                     color="secondary" 
                     onClick={handleAddDetail}
-                    startIcon={<Add />}
+                    startIcon={loading ? <CircularProgress size={24} /> : <Add />}
                     sx={{ height: '56px' }}
-                    disabled={!selectedType}
+                    disabled={!selectedGroup || !selectedType || loading}
                   >
                     LƯU LẠI
                   </Button>
@@ -387,7 +478,7 @@ const WastCategoriesPage = () => {
         </Typography>
         
         <Grid container spacing={3}>
-          {wasteGroups.map((group) => (
+          {listWasteGroups.map((group) => (
             <Grid item xs={12} md={3} lg={4} key={group.id}>
               <Card elevation={3} sx={{ height: '100%' }}>
                 <CardContent>
@@ -401,7 +492,7 @@ const WastCategoriesPage = () => {
                     alignItems: 'center'
                   }}>
                     <Typography variant="h7" color="white" >
-                      {group.name}
+                      {group.waste_group_name}
                     </Typography>
                     <Box>
                       <IconButton size="small" sx={{ color: 'white' }} onClick={() => handleEdit(group.id)}>
@@ -414,18 +505,18 @@ const WastCategoriesPage = () => {
                   </Box>
                   
                   <List dense>
-                    {group.types.map((type) => (
+                    {group.waste_type.map((type) => (
                       <React.Fragment key={type.id}>
                         <ListItem>
                           <ListItemText 
-                            primary={type.name}
+                            primary={type.waste_type_name}
                             secondary={
-                              type.details.length > 0 && (
+                              type.waste_detail.length > 0 && (
                                 <Box sx={{ mt: 1 }}>
-                                  {type.details.map((detail) => (
+                                  {type.waste_detail.map((detail) => (
                                     <Chip 
                                       key={detail.id}
-                                      label={detail.name}
+                                      label={detail.waste_detail_name}
                                       size="small"
                                       sx={{ mr: 1, mb: 1 }}
                                       onDelete={() => handleDelete(group.id, type.id, detail.id)}
