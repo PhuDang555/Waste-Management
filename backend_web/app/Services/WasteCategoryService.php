@@ -18,15 +18,6 @@ class WasteCategoryService
         return $this->wasteCategoryRepository->listWasteGroup();
     }
 
-    public function listWasteType(int $wasteGroupId)
-    {
-        return $this->wasteCategoryRepository->listWasteType($wasteGroupId);
-    }
-
-    public function listWasteDetail(int $wasteTypeId)
-    {
-        return $this->wasteCategoryRepository->listWasteDetail($wasteTypeId);
-    }
     public function createWasteGroup(array $data)
     {
         return $this->wasteCategoryRepository->createWasteGroup($data);
@@ -55,10 +46,25 @@ class WasteCategoryService
 
     public function deleteWasteGroup(int $id)
     {
+        $wasteTypeIds = $this->wasteCategoryRepository->listWasteType($id)->pluck('id')->toArray();
+
+        if (!empty($wasteTypeIds)) {
+
+            $this->wasteCategoryRepository->deleteWasteDetailsByTypeIds($wasteTypeIds);
+
+            $this->wasteCategoryRepository->deleteWasteTypesByGroupId($id);
+        }
+
         return $this->wasteCategoryRepository->deleteWasteGroup($id);
     }
     public function deleteWasteType(int $id)
     {
+        $data = $this->wasteCategoryRepository->listWasteDetail($id);
+
+        foreach($data as $item){
+            $this->wasteCategoryRepository->deleteWasteDetail($item->id);
+        }
+
         return $this->wasteCategoryRepository->deleteWasteType($id);
     }
     public function deleteWasteDetail(int $id)

@@ -112,10 +112,10 @@ export const deletedGroup = createAsyncThunk(
 
 export const deletedType = createAsyncThunk(
   'wasteCaterogy/deleteType',
-  async (data, { rejectWithValue }) => {
+  async (id, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post('http://127.0.0.1:8000/api/v1/category/delete-user',data,{
+      const response = await axios.delete(`http://127.0.0.1:8000/api/v1/category/delete-waste-type/${id}`,{
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -130,10 +130,10 @@ export const deletedType = createAsyncThunk(
 
 export const deletedDetail = createAsyncThunk(
   'wasteCaterogy/deleteDetail',
-  async (data, { rejectWithValue }) => {
+  async (id, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post('http://127.0.0.1:8000/api/v1/category/delete-user',data,{
+      const response = await axios.delete(`http://127.0.0.1:8000/api/v1/category/delete-waste-detail/${id}`,{
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -207,7 +207,7 @@ const wasteCategorySlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // Xử lý delete waste type
+      // Xử lý delete waste group
       .addCase(deletedGroup.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -218,6 +218,41 @@ const wasteCategorySlice = createSlice({
         state.listWasteGroups = state.listWasteGroups.filter((item) => item.id !== id);
       })
       .addCase(deletedGroup.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Xử lý delete waste type
+      .addCase(deletedType.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deletedType.fulfilled, (state, action) => {
+        state.loading = false;
+        const { id } = action.payload;
+        state.listWasteGroups = state.listWasteGroups.filter((item) => item.id !== id);
+      })
+      .addCase(deletedType.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Xử lý delete waste detail
+      .addCase(deletedDetail.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deletedDetail.fulfilled, (state, action) => {
+          state.loading = false;
+          const { id } = action.payload; // id là waste_detail_id
+      
+          state.listWasteGroups = state.listWasteGroups.map(group => ({
+              ...group,
+              waste_type: group.waste_type.map(type => ({
+                  ...type,
+                  waste_detail: type.waste_detail.filter(detail => detail.id !== id)
+              }))
+          }));
+      })
+      .addCase(deletedDetail.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

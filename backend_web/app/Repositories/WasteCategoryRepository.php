@@ -45,6 +45,19 @@ class WasteCategoryRepository implements WasteCategoryRepositoryInterface
         return $data;
     }
 
+    public function findWasteGroup(int $id)
+    {
+        return WasteGroup::find($id);
+    }
+    public function findWasteType(int $id)
+    {
+        return WasteType::find($id);
+    }
+    public function findWasteDetail(int $id)
+    {
+        return WasteDetail::find($id);
+    }
+
     public function createWasteGroup(array $data)
     {
         return WasteGroup::create($data);
@@ -82,6 +95,16 @@ class WasteCategoryRepository implements WasteCategoryRepositoryInterface
     public function deleteWasteDetail(int $id)
     {
         return WasteDetail::where('id', $id)->delete();
+    }
+
+    public function deleteWasteDetailsByTypeIds(array $wasteTypeIds)
+    {
+        return WasteDetail::whereIn('waste_type_id', $wasteTypeIds)->delete();
+    }
+
+    public function deleteWasteTypesByGroupId(int $wasteGroupId)
+    {
+        return WasteType::where('waste_group_id', $wasteGroupId)->delete();
     }
 
 }

@@ -83,4 +83,30 @@ class WasteCategoryController extends Controller
         }
     }
 
+    public function deleteWasteType(int $id)
+    {
+        try {
+
+            $data = $this->wasteCategoryService->deleteWasteType($id);
+
+            return $this->successResponse($data, 'Tạo thành công',201);
+
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 401);
+        }
+    }
+
+    public function deleteWasteDetail(int $id)
+    {
+        try {
+
+            $data = $this->wasteCategoryService->deleteWasteDetail($id);
+
+            return $this->successResponse($data, 'Tạo thành công',201);
+
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 401);
+        }
+    }
+
 }
