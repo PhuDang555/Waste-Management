@@ -3,7 +3,8 @@ import {
   Typography, 
   Button,
   Grid,
-  Switch
+  Switch,
+  IconButton
 } from '@mui/material';
 
 import { useEffect, useState } from 'react';
@@ -11,14 +12,22 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchUser } from '../store/features/authSlice';
 import { listFeaturePermission, updateListFeaturePermission } from '../store/features/featurePermissionSlice';
 import { toast } from 'react-toastify';
+import { Home as HomeIcon } from '@mui/icons-material'; 
+import { useNavigate } from 'react-router-dom';
 
 const PermissionsManagement = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const { user, isAuthenticated } = useSelector(state => state.auth);
   const { featurePermissions, error, loading } = useSelector(state => state.featurePermission);
 
   const [permissions, setPermissions] = useState([]);
   const [originalPermissions, setOriginalPermissions] = useState([]);
+
+  const handleHomeClick = () => {
+    navigate('/admin');
+  };
 
   useEffect(() => {
     if (isAuthenticated && !user) {
@@ -78,28 +87,51 @@ const PermissionsManagement = () => {
   }
   return (
     <Box sx={{ flex: 1, padding: 3, width: '100%' }}>
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          mb: 2 
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{ marginRight: 3, color: '#4FC3F7' }}
+          >
+            TÊN NHÓM QUYỀN
+          </Typography>
+          <Box sx={{ border: '1px solid #4FC3F7', marginRight: 2 }}>
+            <Typography
+                variant="h6"
+                component="div"
+                sx={{ backgroundColor: '#EEEEEE', pr: 5, pl: 1, pt: 0.5, pb: 0.5 }}
+            >
+                {user?.permission_id === 1 ? 'ADMIN' 
+                : user?.permission_id === 2 ? 'QUẢN LÝ' 
+                : 'VẬN HÀNH'}
+            </Typography>
+          </Box>
+        </Box>
+        <IconButton
+          onClick={handleHomeClick}
+          sx={{ 
+            mr: 1, 
+            color: '#4FC3F7',
+          }}
+        >
+          <HomeIcon />
+        </IconButton>
+      </Box>
       <Grid container spacing={3}>
           <Grid item xs={12} md={10}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Typography
-                  variant="h6"
-                  component="div"
-                  sx={{ marginRight: 3, color: '#4FC3F7' }}
-                  >
-                  TÊN NHÓM QUYỀN
-                  </Typography>
-                  <Box sx={{ border: '1px solid #4FC3F7', marginRight: 2 }}>
-                  <Typography
-                      variant="h6"
-                      component="div"
-                      sx={{ backgroundColor: '#EEEEEE', pr: 5, pl: 1, pt: 0.5, pb: 0.5 }}
-                  >
-                      {user?.permission_id === 1 ? 'ADMIN' 
-                      : user?.permission_id === 2 ? 'QUẢN LÝ' 
-                      : 'VẬN HÀNH'}
-                  </Typography>
-                  </Box>
-              </Box>
               <Box sx={{ marginTop: 3 }}>
                   <Typography
                   variant="h6"

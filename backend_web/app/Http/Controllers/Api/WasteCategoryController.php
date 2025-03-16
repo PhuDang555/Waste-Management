@@ -76,10 +76,10 @@ class WasteCategoryController extends Controller
 
             $data = $this->wasteCategoryService->deleteWasteGroup($id);
 
-            return $this->successResponse($data, 'Tạo thành công',201);
+            return $this->successResponse($data, 'Tạo thành công',200);
 
         } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), 401);
+            return $this->errorResponse($e->getMessage(), 500);
         }
     }
 
@@ -89,10 +89,10 @@ class WasteCategoryController extends Controller
 
             $data = $this->wasteCategoryService->deleteWasteType($id);
 
-            return $this->successResponse($data, 'Tạo thành công',201);
+            return $this->successResponse($data, 'Tạo thành công',200);
 
         } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), 401);
+            return $this->errorResponse($e->getMessage(), 500);
         }
     }
 
@@ -102,10 +102,49 @@ class WasteCategoryController extends Controller
 
             $data = $this->wasteCategoryService->deleteWasteDetail($id);
 
-            return $this->successResponse($data, 'Tạo thành công',201);
+            return $this->successResponse($data, 'Tạo thành công',200);
 
         } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), 401);
+            return $this->errorResponse($e->getMessage(), 500);
+        }
+    }
+
+    public function editWasteGroup(Request $request,int $id)
+    {
+        try {
+            
+            $data = $this->wasteCategoryService->editWasteGroup($request->all(),$id);
+
+            return $this->successResponse($data, 'Cập nhật thành công',200);
+
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 500);
+        }
+    }
+
+    public function editWasteType(Request $request,int $id)
+    {
+        try {
+            
+            $data = $this->wasteCategoryService->editWasteType($request->all(),$id);
+
+            return $this->successResponse($data, 'Cập nhật thành công',200);
+
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 500);
+        }
+    }
+
+    public function editWasteDetail(Request $request,int $id)
+    {
+        try {
+
+            $data = $this->wasteCategoryService->editWasteDetail($request->all(),$id);
+
+            return $this->successResponse($data, 'Cập nhật thành công',200);
+
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 500);
         }
     }
 

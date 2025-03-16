@@ -146,6 +146,62 @@ export const deletedDetail = createAsyncThunk(
   }
 );
 
+export const editGroup = createAsyncThunk(
+  'wasteCaterogy/editGroup',
+  async ({id, data}, { rejectWithValue }) => {
+    try {
+      
+      const token = localStorage.getItem('token');
+      const response = await axios.patch(`http://127.0.0.1:8000/api/v1/category/edit-waste-group/${id}`,data,{
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const editType = createAsyncThunk(
+  'wasteCaterogy/editType',
+  async ({id, data}, { rejectWithValue }) => {
+    try {
+      console.log(id, data);
+      const token = localStorage.getItem('token');
+      const response = await axios.patch(`http://127.0.0.1:8000/api/v1/category/edit-waste-type/${id}`,data,{
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const editDetail = createAsyncThunk(
+  'wasteCaterogy/editDetail',
+  async ({id, data}, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.patch(`http://127.0.0.1:8000/api/v1/category/edit-waste-detail/${id}`,data,{
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 const wasteCategorySlice = createSlice({
     name: 'wasteCaterogy',
     initialState: {
@@ -194,7 +250,7 @@ const wasteCategorySlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // Xử lý create waste type
+      // Xử lý create waste detail
       .addCase(createWasteDetail.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -253,6 +309,45 @@ const wasteCategorySlice = createSlice({
           }));
       })
       .addCase(deletedDetail.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Xử lý edit waste group
+      .addCase(editGroup.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(editGroup.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload;
+      })
+      .addCase(editGroup.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Xử lý edit waste type
+      .addCase(editType.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(editType.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload;
+      })
+      .addCase(editType.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Xử lý edit waste detail
+      .addCase(editDetail.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(editDetail.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload;
+      })
+      .addCase(editDetail.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

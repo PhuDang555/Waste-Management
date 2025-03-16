@@ -136,7 +136,7 @@ class DataInputController extends Controller
             return $this->successResponse($data, 'Edit thành công');
 
         } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), 401);
+            return $this->errorResponse($e->getMessage(), 500);
         }
 
     }
@@ -148,7 +148,7 @@ class DataInputController extends Controller
         try {
             return $this->successResponse($data, 'Xóa thành công');
         } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), 401);
+            return $this->errorResponse($e->getMessage(), 500);
         }
     }
 }

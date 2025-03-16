@@ -59,9 +59,9 @@ Route::prefix('/v1')->group(function () {
         Route::post('create-waste-type', [WasteCategoryController::class, 'createWasteType']);
         Route::post('create-waste-detail', [WasteCategoryController::class, 'createWasteDetail']);
 
-        Route::patch('patch-waste-group/{id}', [WasteCategoryController::class, 'editWasteGroup']);
-        Route::patch('patch-waste-type/{id}', [WasteCategoryController::class, 'editWasteType']);
-        Route::patch('patch-waste-type/{id}', [WasteCategoryController::class, 'editWasteDetail']);
+        Route::patch('edit-waste-group/{id}', [WasteCategoryController::class, 'editWasteGroup']);
+        Route::patch('edit-waste-type/{id}', [WasteCategoryController::class, 'editWasteType']);
+        Route::patch('edit-waste-detail/{id}', [WasteCategoryController::class, 'editWasteDetail']);
 
         Route::delete('delete-waste-group/{id}', [WasteCategoryController::class, 'deleteWasteGroup']);
         Route::delete('delete-waste-type/{id}', [WasteCategoryController::class, 'deleteWasteType']);

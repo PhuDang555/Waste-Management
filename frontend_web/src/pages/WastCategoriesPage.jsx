@@ -28,7 +28,7 @@ import {
 import { Add, Delete, Edit} from '@mui/icons-material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
-import { createWasteDetail, createWasteGroup, createWasteType, deletedDetail, deletedGroup, deletedType, listWasteGroup } from '../store/features/wasteCategorySlice';
+import { createWasteDetail, createWasteGroup, createWasteType, deletedDetail, deletedGroup, deletedType, editDetail, editGroup, editType, listWasteGroup } from '../store/features/wasteCategorySlice';
 import { toast } from 'react-toastify';
 
 const theme = createTheme({
@@ -64,7 +64,7 @@ const WastCategoriesPage = () => {
   const [inputDetailError, setInputDetailError] = useState('')
   const [selectedGroup, setSelectedGroup] = useState('');
   const [selectedType, setSelectedType] = useState('');
-  const [editMode, setEditMode] = useState(null);
+  const [editMode, setEditMode] = useState({ groupId: null, typeId: null, detailId: null });
 
   useEffect(()=>{
     if(!listWasteGroups?.length) dispatch(listWasteGroup())
@@ -277,13 +277,180 @@ const WastCategoriesPage = () => {
   };
 
   const handleEdit = (groupId, typeId = null, detailId = null) => {
+    const group = listWasteGroups.find(g => g.id === groupId);
+    setInputError('');
+    setInputTypeError('');
+    setInputDetailError('');
+    if (!group) return;
+  
     setEditMode({ groupId, typeId, detailId });
+  
+    setNewGroupName(group.waste_group_name);
+    setSelectedGroup(group.waste_group_name);
+  
+    if (typeId) {
+      const type = group.waste_type.find(t => t.id === typeId);
+      if (type) {
+        setNewTypeName(type.waste_type_name); 
+        setSelectedType(type.waste_type_name); 
+        setTabValue(1);
+      }
+    } else {
+      setNewTypeName('');
+      setSelectedType('');
+      setTabValue(0);
+    }
+  
+    if (detailId) {
+      const type = group.waste_type.find(t => t.id === typeId);
+      if (type) {
+        const detail = type.waste_detail.find(d => d.id === detailId);
+        if (detail) {
+          setNewDetailName(detail.waste_detail_name);
+          setTabValue(2);
+        }
+      }
+    } else {
+      setNewDetailName('');
+    }
   };
+  useEffect(() => {
+    console.log('selectedType sau khi thay đổi:', selectedType);
+  }, [selectedType]);
 
-  // Save edit (placeholder for save functionality)
-  const handleSaveEdit = () => {
-    // Save edits and exit edit mode
-    setEditMode(null);
+  const handleUpdate = async () => {
+    if (editMode.groupId && !editMode.typeId && !editMode.detailId) {
+      if (!newGroupName || newGroupName.trim() === '') {
+        setInputError('Vui lòng nhập tên nhóm');
+        return;
+      }
+      const duplicate = listWasteGroups.some(
+        group => group.waste_group_name.trim().toLowerCase() === newGroupName.trim().toLowerCase()
+      )
+  
+      if(duplicate){
+        setInputError('Tên nhóm rác đã tồn tại');
+        return;
+      }
+
+      const data = {
+        waste_group_name: newGroupName.trim().toUpperCase(),
+      }
+    
+      try {
+        await dispatch(editGroup({ id: editMode.groupId, data }));
+        toast.success('Cập nhật nhóm rác thành công.');
+      } catch (error) {
+        console.log(error);
+        toast.error('Có lỗi xảy ra khi cập nhật nhóm rác.')
+      }
+
+    } else if (editMode.typeId && !editMode.detailId) {
+
+      if (!newTypeName || !newTypeName.trim() === '') {
+        setInputTypeError('Vui lòng nhập tên loại');
+        return;
+      }
+
+      const selectedGroupObject = listWasteGroups.find(
+        group => group.waste_group_name === selectedGroup
+      );
+      
+      if (!selectedGroupObject) {
+        setInputError('Không tìm thấy nhóm rác đã chọn');
+        return;
+      }
+      
+      const waste_types = selectedGroupObject.waste_type || [];
+      
+      const duplicate = waste_types.some(
+        type => type.waste_type_name.trim().toLowerCase() === newTypeName.trim().toLowerCase()
+      );
+      
+      if (duplicate) {
+        setInputTypeError('Tên loại rác đã tồn tại trong nhóm này');
+        return;
+      }
+
+      const data = {
+        waste_type_name: newTypeName.trim().toUpperCase(),
+        waste_group_id:selectedGroupObject.id,
+      }
+
+      try {
+        await dispatch(editType({ id: editMode.typeId, data:data}));
+        toast.success('Cập nhật loại rác thành công.');
+      } catch (error) {
+        console.log(error);
+        toast.error('Có lỗi xảy ra khi cập nhật loại rác.')
+      }
+    } else if (editMode.detailId) {
+      if (!newDetailName || newDetailName.trim() === '') {
+        setInputDetailError('Vui lòng nhập chi tiết');
+        return;
+      }
+      console.log(selectedType);
+      if (!selectedType) {
+        setInputTypeError('Vui lòng chọn loại rác');
+        return;
+      }
+
+      const selectedGroupObject = listWasteGroups.find(
+        group => group.waste_group_name === selectedGroup
+      );
+      
+      if (!selectedGroupObject) {
+        setInputError('Không tìm thấy nhóm rác đã chọn');
+        return;
+      }
+      
+      const waste_type = selectedGroupObject.waste_type || [];
+      
+      const selectedTypeObject = waste_type.find(
+        type => type.waste_type_name === selectedType
+      );
+      
+      if (!selectedTypeObject) {
+        setInputTypeError('Không tìm thấy loại rác đã chọn');
+        return;
+      }
+  
+      const waste_detail = selectedTypeObject.waste_detail || [];
+      
+      const duplicate = waste_detail.some(
+        type => type.waste_detail_name.trim().toLowerCase() === newDetailName.trim().toLowerCase()
+      );
+      
+      if (duplicate) {
+        setInputDetailError('Tên loại rác đã tồn tại trong nhóm này');
+        return;
+      }
+
+      const data = {
+        waste_detail_name: newDetailName.trim().toUpperCase(),
+        waste_group_id:selectedGroupObject.id,
+        waste_type_id: selectedTypeObject.id
+      }
+      console.log(editMode.detailId, data);
+      try {
+        await dispatch(editDetail({ id: editMode.detailId, data}));
+        toast.success('Cập nhật chi tiết rác thành công.');
+      } catch (error) {
+        console.log(error);
+        toast.error('Có lỗi xảy ra khi cập nhật chi tiết rác.')
+      }
+    }
+    
+    setEditMode({ groupId: null, typeId: null, detailId: null });
+    setNewGroupName('');
+    setSelectedGroup('');
+    setSelectedType('');
+    setNewTypeName('');
+    setNewDetailName('');
+    setInputError('');
+    setInputTypeError('');
+    setInputDetailError('');
+    dispatch(listWasteGroup());
   };
 
   return (
@@ -314,7 +481,6 @@ const WastCategoriesPage = () => {
                       setNewGroupName(e.target.value);
                       setInputError('');
                     }}
-                    loading={loading}
                     error={!!inputError}
                     helperText={inputError}
                   />
@@ -324,11 +490,12 @@ const WastCategoriesPage = () => {
                   <Button 
                     variant="contained" 
                     color="secondary" 
-                    onClick={handleAddGroup}
+                    // onClick={handleAddGroup}
+                    onClick={editMode.groupId && !editMode.typeId && !editMode.detailId ? handleUpdate : handleAddGroup}
                     startIcon={<Add />}
                     sx={{ height: '56px' }}
                   >
-                    THÊM NHÓM RÁC
+                    {editMode.groupId && !editMode.typeId && !editMode.detailId ? 'CẬP NHẬT' : 'THÊM NHÓM RÁC'}
                   </Button>
                 </Grid>
               </Grid>
@@ -379,12 +546,13 @@ const WastCategoriesPage = () => {
                   <Button 
                     variant="contained" 
                     color="secondary" 
-                    onClick={handleAddType}
+                    // onClick={handleAddType}
+                    onClick={editMode.typeId && !editMode.detailId ? handleUpdate : handleAddType}
                     startIcon={loading ? <CircularProgress size={24} /> : <Add />}
                     sx={{ height: '56px' }}
                     disabled={!selectedGroup || loading}
                   >
-                    LƯU LẠI
+                    {editMode.typeId && !editMode.detailId ? 'CẬP NHẬT' : 'LƯU LẠI'}
                   </Button>
                 </Grid>
               </Grid>
@@ -403,6 +571,7 @@ const WastCategoriesPage = () => {
                       label="TÊN NHÓM"
                       onChange={(e) => {
                         setSelectedGroup(e.target.value);
+                        setSelectedType('');
                         setInputTypeError('');
                         }}
                     >
@@ -460,12 +629,13 @@ const WastCategoriesPage = () => {
                   <Button 
                     variant="contained" 
                     color="secondary" 
-                    onClick={handleAddDetail}
+                    // onClick={handleAddDetail}
+                    onClick={editMode.detailId ? handleUpdate : handleAddDetail}
                     startIcon={loading ? <CircularProgress size={24} /> : <Add />}
                     sx={{ height: '56px' }}
-                    disabled={!selectedGroup || !selectedType || loading}
+                    disabled={!selectedGroup || !selectedType || loading }
                   >
-                    LƯU LẠI
+                    {editMode.detailId ? 'CẬP NHẬT' : 'LƯU LẠI'}
                   </Button>
                 </Grid>
               </Grid>
@@ -507,26 +677,61 @@ const WastCategoriesPage = () => {
                   <List dense>
                     {group.waste_type.map((type) => (
                       <React.Fragment key={type.id}>
-                        <ListItem>
+                        <ListItem
+                          sx={{
+                            alignItems: 'flex-start',
+                          }}
+                        >
                           <ListItemText 
                             primary={type.waste_type_name}
                             secondary={
                               type.waste_detail.length > 0 && (
                                 <Box sx={{ mt: 1 }}>
                                   {type.waste_detail.map((detail) => (
-                                    <Chip 
+                                    <Chip
                                       key={detail.id}
                                       label={detail.waste_detail_name}
                                       size="small"
                                       sx={{ mr: 1, mb: 1 }}
-                                      onDelete={() => handleDelete(group.id, type.id, detail.id)}
+                                      deleteIcon={
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                          <IconButton 
+                                            size="small" 
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleEdit(group.id, type.id, detail.id);
+                                            }}
+                                            sx={{ p: 0.5 }}
+                                          >
+                                            <Edit fontSize="small" />
+                                          </IconButton>
+                                          <IconButton 
+                                            size="small" 
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleDelete(group.id, type.id, detail.id);
+                                            }}
+                                            sx={{ p: 0.5 }}
+                                          >
+                                            <Delete fontSize="small" />
+                                          </IconButton>
+                                        </Box>
+                                      }
+                                      onDelete={() => {}}
                                     />
                                   ))}
                                 </Box>
                               )
                             }
                           />
-                          <ListItemSecondaryAction>
+                          <ListItemSecondaryAction
+                            sx={{
+                              position: 'absolute',
+                              top: '3px',
+                              right: '3px',
+                              transform: 'none',
+                            }}
+                          >
                             <IconButton edge="end" size="small" onClick={() => handleEdit(group.id, type.id)}>
                               <Edit fontSize="small" />
                             </IconButton>
