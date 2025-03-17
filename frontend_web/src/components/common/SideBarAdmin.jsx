@@ -19,7 +19,7 @@ const SideBarAdmin = () => {
         { id: 8, title: "TRẠM TRUNG CHUYỂN", isHeader: false, path: "/admin/management/transfer-stations" },
         { id: 9, title: "ĐỐI TÁC", isHeader: false, path: "/admin/management/partners" },
         { id: 10, title: "ĐƠN VỊ THU GOM", isHeader: false, path: "/admin/management/collect-units" },
-        { id: 11, title: "ĐƠN VỊ TÁI CHÊ", isHeader: false, path: "/admin/management/collectunits" },
+        { id: 11, title: "ĐƠN VỊ TÁI CHÊ", isHeader: false, path: "/admin/management/process-units" },
     ];
 
   return (

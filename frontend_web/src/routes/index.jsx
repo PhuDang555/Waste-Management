@@ -23,6 +23,12 @@ import ProfileAdminPage from "../pages/ProfileAdminPage";
 import ListCustomerPage from "../pages/ListCustomerPage";
 import WastCategoriesPage from "../pages/WastCategoriesPage";
 import CollectUnitAdminPage from "../pages/CollectUnitAdminPage";
+import Capacity from "../pages/Capacity";
+import Licenses from "../pages/Licenses";
+import Vehicles from "../pages/Vehicles";
+import TransferStations from "../pages/TransferStations";
+import ProcessUnitAdminPage from "../pages/ProcessUnitAdminPage";
+import Partner from "../pages/Partner";
 
 export const router = createBrowserRouter([
     {
@@ -151,6 +157,36 @@ export const router = createBrowserRouter([
                     path: "collect-units",
                     index: true,
                     element: <CollectUnitAdminPage />,
+                  },
+                  {
+                    path: "process-units",
+                    index: true,
+                    element: <ProcessUnitAdminPage />,
+                  },
+                  {
+                    path: "partners",
+                    index: true,
+                    element: <Partner />,
+                  },
+                  {
+                    path: "capacity",
+                    index: true,
+                    element: <Capacity />,
+                  },
+                  {
+                    path: "licenses",
+                    index: true,
+                    element: <Licenses />,
+                  },
+                  {
+                    path: "vehicles",
+                    index: true,
+                    element: <Vehicles />,
+                  },
+                  {
+                    path: "transfer-stations",
+                    index: true,
+                    element: <TransferStations />,
                   },
                 ]
             },
