@@ -43,6 +43,7 @@ Route::prefix('/v1')->group(function () {
         Route::get('list-province', [CreateUserController::class, 'listProvince']);
         Route::get('list-district', [CreateUserController::class, 'listDistrict']);
         Route::get('list-ward', [CreateUserController::class, 'listWard']);
+        Route::get('get-user', [CreateUserController::class, 'getUser']);
         Route::post('create-user', [CreateUserController::class, 'create']);
         Route::post('edit-user', [CreateUserController::class, 'edit']);
         Route::post('delete-user', [CreateUserController::class, 'delete']);

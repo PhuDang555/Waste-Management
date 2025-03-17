@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\BlockType;
 use App\Repositories\CreateUserRepository;
 
 class CreateUserService
@@ -41,23 +42,55 @@ class CreateUserService
         return $this->createUserRepository->findById($id);
     }
 
-    public function createWasteGroup(array $data)
-    {
-        return $this->createUserRepository->createWasteGroup($data);
-    }
-
-    public function edit(array $data, int $id)
+    public function create(array $data)
     {
         if (isset($data['avatar'])) {
             $imagePath = $data['avatar']->store('images', 'public');
             $data['avatar'] = $imagePath;
         }
 
-        return $this->createUserRepository->edit($data, $id);
+        return $this->createUserRepository->create($data);
     }
 
-    public function delete(int $id)
+    public function edit(array $data)
     {
-        return $this->createUserRepository->delete($id);
+        if (isset($data['avatar'])) {
+            $imagePath = $data['avatar']->store('images', 'public');
+            $data['avatar'] = $imagePath;
+        }
+
+        $user = $this->createUserRepository->findById($data['id']);
+        return $this->createUserRepository->edit($data,$user->id);
+    }
+
+    public function delete(array $data)
+    {
+        foreach($data as $item){
+            $user = $this->createUserRepository->findById($item);
+
+            if($user){
+                $this->createUserRepository->delete($user->id);
+            }
+        }
+        return;
+    }
+
+    public function block(array $data)
+    {
+        foreach($data as $item){
+            $user = $this->createUserRepository->findById($item);
+
+            if($user){
+                if($user->is_blocked === BlockType::BLOCK){
+                    $user->is_blocked = BlockType::UNBLOCK;
+                    $user->save();
+                }else{
+                    $user->is_blocked = BlockType::BLOCK;
+                    $user->save();
+                }
+            }
+        }
+
+        return;
     }
 }

@@ -15,12 +15,13 @@ import {
 } from '@mui/material';
 import { PhotoCamera, CalendarToday } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation } from 'react-router-dom';
-import { create, edit, listDistrict, listManageUnit, listProvince, listWard } from '../store/features/createUserSlice';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { create, edit, listDistrict, listManageUnit, listProvince, listUser, listWard } from '../store/features/createUserSlice';
 import { toast } from 'react-toastify';
 
 const ProfileAdminPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const location = useLocation();
   const { listManageUnits, listProvinces, listDistricts, listWards } = useSelector((state) => state.createUser);
   
@@ -31,7 +32,6 @@ const ProfileAdminPage = () => {
   const imageInputRef = useRef(null);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [existingImageUrl, setExistingImageUrl] = useState(''); // URL ảnh cũ
   
   const { editData, isEdit } = location.state || {};
 
@@ -68,6 +68,39 @@ const ProfileAdminPage = () => {
     password: '',
     confirmPassword:'',
   });
+
+  // Điền dữ liệu từ editData khi vào chế độ chỉnh sửa
+  useEffect(() => {
+    if (isEdit && editData) {
+      setFormData({
+        displayName: editData.full_name || '',
+        address: editData.address || '',
+        province: editData.province_id || '',
+        district: editData.district_id || '',
+        ward: editData.ward_id || '',
+        userGroup: editData.permission_id || '',
+        managementUnit: editData.management_unit_id || '',
+        phone: editData.phone_number || '',
+        email: editData.email || '',
+        username: editData.username || '',
+        expirationDate: editData.license_expiration || '',
+        isUnlimited: !editData.license_expiration ,
+        
+      });
+
+      setSelectedProvinceId(editData.province_id || '');
+      setSelectedDistrictId(editData.district_id || '');
+      setSelectedWardId(editData.ward_id || '');
+
+      if (editData.avatar) {
+        const fullImageUrl = `http://127.0.0.1:8000/storage/${editData.avatar}`;
+        
+        setImagePreview(fullImageUrl);
+      } else {
+        setImagePreview(null);
+      }
+    }
+  }, [editData, isEdit]);
 
   // Fetch data on mount
   useEffect(() => {
@@ -118,6 +151,7 @@ const ProfileAdminPage = () => {
 
   const validateForm = () => {
     const newErrors = {};
+    
     const requiredFields = {
       displayName: 'Vui lòng điền tên hiển thị ',
       address: 'Vui lòng điền địa chỉ',
@@ -130,10 +164,13 @@ const ProfileAdminPage = () => {
       email:'Vui lòng nhập email',
       expirationDate: 'Vui lòng điền thời hạn dùng phần mềm',
       username: 'Vui lòng điền tên đăng nhập',
-      password: 'Vui lòng điền mật khẩu',
-      confirmPassword: 'Vui lòng điền xác nhận mật khẩu',
     };
     
+    if (!isEdit) {
+      requiredFields.password = 'Vui lòng điền mật khẩu';
+      requiredFields.confirmPassword = 'Vui lòng điền xác nhận mật khẩu';
+    }
+
     Object.entries(requiredFields).forEach(([field, message]) => {
 
       if (field === 'expirationDate' && formData.isUnlimited) {
@@ -195,33 +232,28 @@ const ProfileAdminPage = () => {
     setSelectedProvinceId('');
     setSelectedDistrictId('');
     setSelectedWardId('');
-    setExistingImageUrl('');
     setImagePreview(null);
     setErrors({});
   };
 
-  const handleFileChange = (setter) => (event) => {
+  const handleFileChange = (setImageFile) => (event) => {
     const file = event.target.files[0];
     if (file) {
-      const previewUrl = URL.createObjectURL(file);
-      setImagePreview(previewUrl);
-      setter(file);
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
     }
   };
-
-  const handleRemoveImage = () => {
-    setImagePreview(null);
+  
+  // Hàm xóa ảnh
+  const handleRemoveImage = (setImageFile, setImagePreview, imageInputRef) => () => {
     setImageFile(null);
-    if (imageInputRef.current) {
-      imageInputRef.current.value = '';
-    }
-  };
+    setImagePreview(null);
+    if (imageInputRef.current) imageInputRef.current.value = '';
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log(formData);
-    
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -243,15 +275,18 @@ const ProfileAdminPage = () => {
     formDataToSend.append('password', formData.password);
    
     if (imageFile) formDataToSend.append('avatar', imageFile);
+    if(isEdit) formDataToSend.append('id',editData.id);
 
     try {
       if (isEdit && editData?.id) {
-        await dispatch(edit({ id: editData.id, data: formDataToSend })).unwrap();
+        await dispatch(edit(formDataToSend)).unwrap();
         toast.success('Cập nhật thành công!');
       } else {
         await dispatch(create(formDataToSend)).unwrap();
         toast.success('Nhập liệu gửi thành công!');
       }
+      dispatch(listUser());
+      navigate('/admin/management/customer-list');
       resetForm();
     } catch (error) {
       console.error('Submit error:', error);
@@ -511,7 +546,7 @@ const ProfileAdminPage = () => {
                     label="Tên đăng nhập"
                     value={formData.username}
                     onChange={(e) => setFormData({...formData, username: e.target.value})}
-                    // disabled
+                    disabled = {isEdit}
                     size="small"
                   />
                   {errors.username && (
@@ -556,7 +591,7 @@ const ProfileAdminPage = () => {
             {/* Action Buttons */}
             <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
               <Button variant="contained" color="success" type="submit">
-                Lưu thông tin
+                {isEdit ? 'Cập nhật thông tin' : 'Lưu thông tin' }
               </Button>
               {/* <Button variant="contained" color="warning">
                 Trở về
@@ -583,7 +618,8 @@ const ProfileAdminPage = () => {
                   accept="image/*"
                   type="file"
                   ref={imageInputRef}
-                  onChange={handleFileChange(setImageFile)}
+                  // onChange={handleFileChange(setImageFile)}
+                  onChange={handleFileChange(setImageFile, setImagePreview)}
                 />
                 <PhotoCamera />
               </IconButton>
@@ -591,7 +627,8 @@ const ProfileAdminPage = () => {
                 <IconButton
                   color="secondary"
                   aria-label="remove picture"
-                  onClick={handleRemoveImage}
+                  // onClick={handleRemoveImage}
+                  onClick={handleRemoveImage(setImageFile, setImagePreview, imageInputRef)}
                   sx={{ ml: 1 }}
                 >
                   ✕

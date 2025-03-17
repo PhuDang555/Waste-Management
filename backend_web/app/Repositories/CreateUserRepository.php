@@ -25,7 +25,7 @@ class CreateUserRepository implements CreateUserRepositoryInterface
     {
         $data = User::where('permission_id', AccountType::QUAN_LY)
         ->orWhere('permission_id', AccountType::VAN_HANH)
-        ->select('id','full_name','username','address','phone_number','permission_id')
+        ->select('id','full_name','username','is_blocked','phone_number','permission_id')
         ->get();
 
         return $data;
@@ -50,7 +50,7 @@ class CreateUserRepository implements CreateUserRepositoryInterface
     }
     public function findById(int $id)
     {
-        $data = User::findById($id);
+        $data = User::find($id);
 
         return $data;
     }

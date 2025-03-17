@@ -78,8 +78,20 @@ class CreateUserController extends Controller
             return $this->errorResponse($e->getMessage(), 401);
         }
     }
+    public function getUser(Request $request)
+    {
+        Log::info('data:'.$request->id);
+        $data = $this->createUserService->findById($request->id);
+
+        try {
+            return $this->successResponse($data, 'Thông tin người dùng',200);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 401);
+        }
+    }
     public function create(Request $request)
     {
+
         try {
             $validated = Validator::make($request->all(), [
                 'image'             => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
@@ -103,11 +115,21 @@ class CreateUserController extends Controller
         }
     }
 
-    public function edit(Request $request, int $id)
+    public function edit(Request $request)
     {
         try {
 
-            $data = $this->createUserService->edit($request->all(), $id);
+            $validated = Validator::make($request->all(), [
+                'image'             => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                // 'phone_number'      => ['required','numeric','regex:/^(0|\+84)[0-9]{9,10}$/','unique:users,phone_number'],
+                // 'email'             => ['required','email','unique:users,email'],
+            ]);
+
+            if ($validated->fails()) {
+                return $this->errorResponse($validated->errors(), 400);
+            }
+
+            $data = $this->createUserService->edit($request->all());
             return $this->successResponse($data, 'Edit thành công');
 
         } catch (\Exception $e) {
@@ -116,28 +138,24 @@ class CreateUserController extends Controller
 
     }
 
-    public function delete(int $id)
+    public function delete(Request $request)
     {
-        $data = $this->createUserService->delete($id);
 
         try {
-            return $this->successResponse($data, 'Xóa thành công');
+            $this->createUserService->delete($request->all());
+
+            return $this->successResponse([], 'Xóa thành công');
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), 401);
         }
     }
 
-    public function block(array $data)
+    public function block(Request $request)
     {
 
         try {
 
-            foreach($data as $item){
-                $user = $this->createUserService->findById($item['id']);
-
-                $user->is_blocked = BlockType::BLOCK;
-                $user->save();
-            }
+            $this->createUserService->block($request->all());
 
             return $this->successResponse([], 'Block thành công',200 );
         } catch (\Exception $e) {

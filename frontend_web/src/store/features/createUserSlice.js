@@ -29,7 +29,7 @@ export const listUser = createAsyncThunk(
           Authorization: `Bearer ${token}`
         }
       });
-      console.log(response.data.data);
+      
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -93,6 +93,27 @@ export const listWard = createAsyncThunk(
   }
 );
 
+export const getUser = createAsyncThunk(
+  'createUser/getUser',
+  async (id, { rejectWithValue }) => {
+    try {
+      
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://127.0.0.1:8000/api/v1/management/get-user', {
+        params:{ id },
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      return response.data.data;
+      
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 export const create = createAsyncThunk(
   'createUser/create',
   async (data, { rejectWithValue }) => {
@@ -113,12 +134,13 @@ export const create = createAsyncThunk(
 
 export const edit = createAsyncThunk(
   'createUser/edit',
-  async (dataInput, { rejectWithValue }) => {
+  async (data, { rejectWithValue }) => {
     try {
+
       const token = localStorage.getItem('token');
-      const response = await axios.patch('http://127.0.0.1:8000/api/v1/management/edit-user',dataInput,{
+      const response = await axios.post('http://127.0.0.1:8000/api/v1/management/edit-user',data,{
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         }
       });
 
@@ -254,6 +276,32 @@ const createUserSlice = createSlice({
         state.data = action.payload;
       })
       .addCase(create.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Xử lý edit
+      .addCase(edit.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(edit.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload;
+      })
+      .addCase(edit.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Xử lý deleted
+      .addCase(deleted.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleted.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload;
+      })
+      .addCase(deleted.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
