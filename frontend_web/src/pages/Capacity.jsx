@@ -9,13 +9,11 @@ import {
   CardContent,
   Modal,
   Link,
-  Icon
 } from '@mui/material';
 
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUser } from '../store/features/authSlice';
-import { listFeaturePermission, updateListFeaturePermission } from '../store/features/featurePermissionSlice';
 import { toast } from 'react-toastify';
 import { 
   Home as HomeIcon, 
@@ -37,8 +35,8 @@ const Capacity = () => {
 
   // Fake data phong phú hơn
   const [uploadedFiles, setUploadedFiles] = useState([
-    { id: 1, type: 'image', name: 'ảnh phong cảnh.jpg', url: 'https://via.placeholder.com/300x200' },
-    { id: 2, type: 'pdf', name: 'hợp đồng mẫu.pdf', url: '#' },
+    { id: 1, type: 'image', name: 'ảnh phong cảnh.jpg', url: 'http://127.0.0.1:8000/storage/images/ygKcSyKT3HVinehOzYssEhQiWDbIUYvVRO1Zz3Iy.jpg' },
+    { id: 2, type: 'pdf', name: 'hợp đồng mẫu.pdf', url: 'http://127.0.0.1:8000/storage/files/Phần mềm Quản lý rác tái chế - 10.12.24.pdf' },
     { id: 3, type: 'image', name: 'chụp màn hình.png', url: 'https://via.placeholder.com/300x200' },
     { id: 4, type: 'excel', name: 'danh sách nhân viên.xlsx', url: '#' },
     { id: 5, type: 'word', name: 'báo cáo tháng 3.docx', url: '#' },

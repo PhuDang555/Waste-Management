@@ -80,4 +80,8 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(WasteCollectionMannagement::class, 'user_id', 'id');
     }
+
+    public function supportCustomer(){
+        return $this->hasMany(SupportCustomer::class, 'user_id');
+    }
 }
