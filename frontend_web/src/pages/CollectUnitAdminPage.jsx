@@ -46,7 +46,7 @@ const ProcessUnitAdminPage = () => {
 
   const [collectionFacilities, setCollectionFacilities] = useState([
     { id: 1, name: 'HTX MÔI TRƯỜNG GÒ VẤPdfdfdf', contact: '0989090013', address: 'Gò Vấp, TP.HCM', taxCode: '03456987' },
-    { id: 2, name: 'GRAC', contact: '0123456789', address: '', taxCode: '' },
+    { id: 2, name: 'GRACfdfsfsdf', contact: '0123456789', address: '', taxCode: '' },
     { id: 3, name: '', contact: '', address: '', taxCode: '' },
   ]);
 
